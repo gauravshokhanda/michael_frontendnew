@@ -11,8 +11,8 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import PublishIcon from "@mui/icons-material/Publish";
 import { DataGrid } from "@mui/x-data-grid";
+import { useSelector } from "react-redux";
 
 const Blogs = () => {
   const [rows, setRows] = useState([]);
@@ -30,6 +30,7 @@ const Blogs = () => {
   });
   const [image, setImage] = useState(null); // Image file
   const [preview, setPreview] = useState(null); // Image preview URL
+  const token = useSelector((state) => state.auth.token);
 
   // Fetch blogs from the API
   useEffect(() => {
@@ -85,7 +86,7 @@ const Blogs = () => {
         content: "",
         author: "",
         tags: "",
-        published: "false",
+        published: "no",
       });
       setPreview(null);
     }
@@ -134,7 +135,7 @@ const Blogs = () => {
       const config = {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: "Bearer YOUR_ACCESS_TOKEN", // Replace with your token
+          Authorization: `Bearer ${token}`,
         },
       };
 
@@ -172,7 +173,7 @@ const Blogs = () => {
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:5000/api/blogs/${id}`, {
-        headers: { Authorization: "Bearer YOUR_ACCESS_TOKEN" },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setRows((prevRows) => prevRows.filter((row) => row.id !== id));
       console.log(`Blog with ID ${id} deleted.`);
@@ -182,16 +183,16 @@ const Blogs = () => {
   };
 
   const columns = [
-    { field: "title", headerName: "Title", flex: 2, minWidth: 200 },
-    { field: "content", headerName: "Content", flex: 3, minWidth: 150 },
+    { field: "title", headerName: "Title", flex: 1, minWidth: 120 },
+    { field: "content", headerName: "Content", flex: 1, minWidth: 250 },
     { field: "author", headerName: "Author", flex: 1, minWidth: 150 },
-    { field: "tags", headerName: "Tags", flex: 2, minWidth: 200 },
+    { field: "tags", headerName: "Tags", flex: 1, minWidth: 150 },
     { field: "published", headerName: "Published", width: 120 },
     {
       field: "actions",
       headerName: "Actions",
-      flex: 1.5,
-      minWidth: 250,
+      flex: 1,
+      minWidth: 100,
       sortable: false,
       renderCell: (params) => (
         <Box sx={{ display: "flex", gap: 1 }}>
@@ -200,9 +201,6 @@ const Blogs = () => {
           </IconButton>
           <IconButton color="error" onClick={() => handleDelete(params.row.id)}>
             <DeleteIcon />
-          </IconButton>
-          <IconButton color="success" onClick={() => handleOpen(params.row)}>
-            <PublishIcon />
           </IconButton>
         </Box>
       ),
@@ -227,7 +225,7 @@ const Blogs = () => {
 
   return (
     <Box
-      sx={{ width: "100%", maxWidth: "1200px", margin: "0 auto", padding: 3 }}
+      sx={{ width: "100%", maxWidth: "1000px", margin: "0 auto", padding: 3 }}
     >
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="h5">Blogs</Typography>
@@ -241,7 +239,6 @@ const Blogs = () => {
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5]}
-          checkboxSelection
           disableRowSelectionOnClick
         />
       </Box>
