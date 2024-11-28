@@ -48,7 +48,7 @@ const Dashboard = () => {
     };
 
     fetchData();
-  }, []);
+  }, [stats]);
 
   if (loading) {
     return (

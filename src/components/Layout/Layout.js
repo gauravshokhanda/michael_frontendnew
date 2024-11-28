@@ -9,7 +9,6 @@ import {
   AppBar,
   Toolbar,
   Typography,
-  IconButton,
   Divider,
 } from "@mui/material";
 import { Outlet, Link, useLocation } from "react-router-dom";
