@@ -20,6 +20,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { useSelector } from "react-redux";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import { baseURL } from "../../config/apiConfig";
 // Add the Source Editing plugin
 ClassicEditor.defaultConfig = {
   plugins: [...ClassicEditor.builtinPlugins],
@@ -58,7 +59,7 @@ const CMS = () => {
 
   const fetchPages = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/contents");
+      const response = await axios.get(`${baseURL}/contents`);
       if (!response.data || !Array.isArray(response.data)) {
         throw new Error("Invalid API response structure");
       }
@@ -157,13 +158,13 @@ const CMS = () => {
 
       if (editMode) {
         await axios.put(
-          `http://localhost:5000/api/contents/${currentPageId}`,
+          `${baseURL}/contents/${currentPageId}`,
           newPage,
           config
         );
         fetchPages();
       } else {
-        await axios.post("http://localhost:5000/api/contents", newPage, config);
+        await axios.post(`${baseURL}/contents`, newPage, config);
         fetchPages();
       }
 
@@ -180,7 +181,7 @@ const CMS = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/contents/${deletePageId}`);
+      await axios.delete(`${baseURL}/contents/${deletePageId}`);
       setRows((prevRows) => prevRows.filter((row) => row.id !== deletePageId));
       console.log(`Page with ID ${deletePageId} deleted.`);
     } catch (error) {

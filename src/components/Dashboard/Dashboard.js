@@ -8,6 +8,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import axios from "axios";
+import { baseURL } from "../../config/apiConfig";
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -21,9 +22,7 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         // Fetch blogs
-        const blogsResponse = await axios.get(
-          "http://localhost:5000/api/blogs/"
-        );
+        const blogsResponse = await axios.get(`${baseURL}/blogs/`);
         const totalBlogs = blogsResponse.data.data.length;
 
         // Fetch menu (replace with your actual menu API)
@@ -48,6 +47,7 @@ const Dashboard = () => {
     };
 
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) {

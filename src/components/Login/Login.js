@@ -7,11 +7,10 @@ import {
   Box,
   Typography,
   Card,
-  Checkbox,
   FormControlLabel,
-  Link,
+  Checkbox,
 } from "@mui/material";
-import API from "../../config/apiConfig";
+import { API } from "../../config/apiConfig";
 import { setLogin } from "../../redux/slices/authSlice";
 
 const Login = () => {
@@ -139,19 +138,6 @@ const Login = () => {
                 },
               }}
             />
-            <Link
-              href="/forgot-password"
-              sx={{
-                fontSize: "0.875rem",
-                color: "#1976d2",
-                textDecoration: "none",
-                "&:hover": {
-                  textDecoration: "underline",
-                },
-              }}
-            >
-              Forgot your password?
-            </Link>
           </Box>
           {error && (
             <Typography
@@ -184,29 +170,6 @@ const Login = () => {
             Sign in
           </Button>
         </form>
-        <Typography
-          sx={{
-            marginTop: 3,
-            fontSize: "0.875rem",
-            textAlign: "center",
-            color: "#666666",
-          }}
-        >
-          Don’t have an account?{" "}
-          <Link
-            href="/register"
-            sx={{
-              color: "#1976d2",
-              textDecoration: "none",
-              fontWeight: "500",
-              "&:hover": {
-                textDecoration: "underline",
-              },
-            }}
-          >
-            Sign up
-          </Link>
-        </Typography>
       </Card>
     </Box>
   );
