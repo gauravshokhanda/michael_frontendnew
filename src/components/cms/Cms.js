@@ -20,6 +20,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { useSelector } from "react-redux";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+
 // Add the Source Editing plugin
 ClassicEditor.defaultConfig = {
   plugins: [...ClassicEditor.builtinPlugins],
@@ -36,6 +37,7 @@ ClassicEditor.defaultConfig = {
     "undo",
     "redo",
     "|",
+    "sourceEditing", // Enable Source Editing
   ],
 };
 
