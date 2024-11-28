@@ -8,6 +8,11 @@ import {
   TextField,
   CircularProgress,
   IconButton,
+  DialogContentText,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Dialog,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -26,41 +31,43 @@ const Blogs = () => {
     content: "",
     author: "",
     tags: "",
-    published: "false",
+    published: "Yes",
   });
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteBlogId, setDeleteBlogId] = useState(null);
   const [image, setImage] = useState(null); // Image file
   const [preview, setPreview] = useState(null); // Image preview URL
   const token = useSelector((state) => state.auth.token);
+  const [validationErrors, setValidationErrors] = useState({});
 
+  const fetchBlogs = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/blogs/");
+      if (
+        !response.data ||
+        !response.data.data ||
+        !Array.isArray(response.data.data)
+      ) {
+        throw new Error("Invalid API response structure");
+      }
+      const blogs = response.data.data.map((blog) => ({
+        id: blog._id,
+        title: blog.title || "Untitled",
+        content: blog.content || "No content",
+        author: blog.author || "Unknown",
+        tags: Array.isArray(blog.tags) ? blog.tags.join(", ") : "No tags",
+        published: "Yes",
+      }));
+      setRows(blogs);
+    } catch (err) {
+      console.error("Error fetching blogs:", err.message);
+      setError("Failed to fetch blogs. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
   // Fetch blogs from the API
   useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/api/blogs/");
-        if (
-          !response.data ||
-          !response.data.data ||
-          !Array.isArray(response.data.data)
-        ) {
-          throw new Error("Invalid API response structure");
-        }
-        const blogs = response.data.data.map((blog) => ({
-          id: blog._id,
-          title: blog.title || "Untitled",
-          content: blog.content || "No content",
-          author: blog.author || "Unknown",
-          tags: Array.isArray(blog.tags) ? blog.tags.join(", ") : "No tags",
-          published: blog.published || "No",
-        }));
-        setRows(blogs);
-      } catch (err) {
-        console.error("Error fetching blogs:", err.message);
-        setError("Failed to fetch blogs. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchBlogs();
   }, []);
 
@@ -75,7 +82,7 @@ const Blogs = () => {
         content: blog.content,
         author: blog.author,
         tags: blog.tags,
-        published: blog.published,
+        published: "Yes",
       });
       setPreview(null); // You can set an image preview here if the blog has an image URL
     } else {
@@ -86,7 +93,7 @@ const Blogs = () => {
         content: "",
         author: "",
         tags: "",
-        published: "no",
+        published: "Yes",
       });
       setPreview(null);
     }
@@ -99,7 +106,7 @@ const Blogs = () => {
       content: "",
       author: "",
       tags: "",
-      published: "false",
+      published: "Yes",
     });
     setImage(null);
     setPreview(null);
@@ -110,6 +117,13 @@ const Blogs = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNewBlog({ ...newBlog, [name]: value });
+    if (validationErrors[name]) {
+      setValidationErrors((prevErrors) => {
+        const updatedErrors = { ...prevErrors };
+        delete updatedErrors[name];
+        return updatedErrors;
+      });
+    }
   };
 
   // Handle image upload
@@ -121,6 +135,22 @@ const Blogs = () => {
 
   // Handle blog submission (Add or Edit)
   const handleSubmit = async () => {
+    const errors = {};
+
+    if (!newBlog.title.trim()) errors.title = "Title is required.";
+    if (!newBlog.content.trim()) errors.content = "Content is required.";
+    if (!newBlog.author.trim()) errors.author = "Author is required.";
+    if (!newBlog.tags.trim()) errors.tags = "Tags are required.";
+    if (!image) errors.image = "Image is required.";
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    // Reset validation errors
+    setValidationErrors({});
+
     const formData = new FormData();
     formData.append("title", newBlog.title);
     formData.append("content", newBlog.content);
@@ -140,27 +170,21 @@ const Blogs = () => {
       };
 
       if (editMode) {
-        // Edit existing blog
         const response = await axios.put(
           `http://localhost:5000/api/blogs/${currentBlogId}`,
           formData,
           config
         );
         console.log("Blog updated:", response.data);
-        setRows((prevRows) =>
-          prevRows.map((row) =>
-            row.id === currentBlogId ? response.data : row
-          )
-        );
+        fetchBlogs();
       } else {
-        // Add new blog
         const response = await axios.post(
           "http://localhost:5000/api/blogs/",
           formData,
           config
         );
         console.log("Blog added:", response.data);
-        setRows((prevRows) => [...prevRows, response.data]);
+        fetchBlogs();
       }
 
       handleClose();
@@ -170,18 +194,30 @@ const Blogs = () => {
   };
 
   // Handle blog delete
-  const handleDelete = async (id) => {
+  const handleDelete = (id) => {
+    setDeleteBlogId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/blogs/${id}`, {
+      await axios.delete(`http://localhost:5000/api/blogs/${deleteBlogId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setRows((prevRows) => prevRows.filter((row) => row.id !== id));
-      console.log(`Blog with ID ${id} deleted.`);
+      setRows((prevRows) => prevRows.filter((row) => row.id !== deleteBlogId));
+      console.log(`Blog with ID ${deleteBlogId} deleted.`);
     } catch (error) {
       console.error("Error deleting blog:", error.message);
+    } finally {
+      setDeleteDialogOpen(false);
+      setDeleteBlogId(null);
     }
   };
 
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setDeleteBlogId(null);
+  };
   const columns = [
     { field: "title", headerName: "Title", flex: 1, minWidth: 120 },
     { field: "content", headerName: "Content", flex: 1, minWidth: 250 },
@@ -243,6 +279,31 @@ const Blogs = () => {
         />
       </Box>
 
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteCancel}
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
+      >
+        <DialogTitle id="delete-dialog-title">Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-dialog-description">
+            Are you sure you want to delete this blog? This action cannot be
+            undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel}>Cancel</Button>
+          <Button
+            onClick={handleDeleteConfirm}
+            color="error"
+            variant="contained"
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Add/Edit Blog Modal */}
       <Modal open={open} onClose={handleClose}>
         <Box
@@ -268,6 +329,8 @@ const Blogs = () => {
             value={newBlog.title}
             onChange={handleChange}
             margin="normal"
+            error={!!validationErrors.title}
+            helperText={validationErrors.title}
           />
           <TextField
             fullWidth
@@ -276,6 +339,8 @@ const Blogs = () => {
             value={newBlog.content}
             onChange={handleChange}
             margin="normal"
+            error={!!validationErrors.content}
+            helperText={validationErrors.content}
           />
           <TextField
             fullWidth
@@ -284,6 +349,8 @@ const Blogs = () => {
             value={newBlog.author}
             onChange={handleChange}
             margin="normal"
+            error={!!validationErrors.author}
+            helperText={validationErrors.author}
           />
           <TextField
             fullWidth
@@ -292,6 +359,8 @@ const Blogs = () => {
             value={newBlog.tags}
             onChange={handleChange}
             margin="normal"
+            error={!!validationErrors.tags}
+            helperText={validationErrors.tags}
           />
           <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
             <Button variant="contained" component="label">
@@ -312,6 +381,12 @@ const Blogs = () => {
               />
             )}
           </Box>
+          {validationErrors.image && (
+            <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+              {validationErrors.image}
+            </Typography>
+          )}
+
           <Button
             fullWidth
             variant="contained"
