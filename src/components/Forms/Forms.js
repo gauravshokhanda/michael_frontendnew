@@ -18,6 +18,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { DataGrid } from "@mui/x-data-grid";
 import { useSelector } from "react-redux";
+import { baseURL } from "../../config/apiConfig";
 
 const Forms = () => {
   const [rows, setRows] = useState([]);
@@ -39,7 +40,7 @@ const Forms = () => {
 
   const fetchContacts = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/contacts");
+      const response = await axios.get(`${baseURL}/contacts`);
       console.log("Fetched Data:", response.data);
 
       const contacts = response.data.map((contact) => ({
@@ -132,17 +133,13 @@ const Forms = () => {
 
       if (editMode) {
         await axios.put(
-          `http://localhost:5000/api/contacts/${currentContactId}`,
+          `${baseURL}/contacts/${currentContactId}`,
           newContact,
           config
         );
         fetchContacts();
       } else {
-        await axios.post(
-          "http://localhost:5000/api/contacts",
-          newContact,
-          config
-        );
+        await axios.post(`${baseURL}/contacts`, newContact, config);
         fetchContacts();
       }
 
@@ -159,12 +156,9 @@ const Forms = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      await axios.delete(
-        `http://localhost:5000/api/contacts/${deleteContactId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axios.delete(`${baseURL}/contacts/${deleteContactId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setRows((prevRows) =>
         prevRows.filter((row) => row.id !== deleteContactId)
       );

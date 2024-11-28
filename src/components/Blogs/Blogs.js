@@ -18,6 +18,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { DataGrid } from "@mui/x-data-grid";
 import { useSelector } from "react-redux";
+import { baseURL } from "../../config/apiConfig";
 
 const Blogs = () => {
   const [rows, setRows] = useState([]);
@@ -42,7 +43,7 @@ const Blogs = () => {
 
   const fetchBlogs = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/blogs/");
+      const response = await axios.get(`${baseURL}/blogs/`);
       if (
         !response.data ||
         !response.data.data ||
@@ -171,7 +172,7 @@ const Blogs = () => {
 
       if (editMode) {
         const response = await axios.put(
-          `http://localhost:5000/api/blogs/${currentBlogId}`,
+          `${baseURL}/blogs/${currentBlogId}`,
           formData,
           config
         );
@@ -179,7 +180,7 @@ const Blogs = () => {
         fetchBlogs();
       } else {
         const response = await axios.post(
-          "http://localhost:5000/api/blogs/",
+          `${baseURL}/blogs/`,
           formData,
           config
         );
@@ -201,7 +202,7 @@ const Blogs = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/blogs/${deleteBlogId}`, {
+      await axios.delete(`${baseURL}/blogs/${deleteBlogId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRows((prevRows) => prevRows.filter((row) => row.id !== deleteBlogId));

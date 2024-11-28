@@ -11,16 +11,20 @@ import {
   Typography,
   Divider,
 } from "@mui/material";
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "./LogoBlack.png";
 import LogoutIcon from "@mui/icons-material/Logout";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ArticleIcon from "@mui/icons-material/Article";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import FormatAlignJustifyIcon from "@mui/icons-material/FormatAlignJustify";
+import { useDispatch } from "react-redux";
+import { setLogin } from "../../redux/slices/authSlice"; // Adjust according to your slice
 
 const Layout = () => {
   const location = useLocation(); // Get current URL
+  const navigate = useNavigate(); // For navigation
+  const dispatch = useDispatch(); // For dispatching logout action
   const [mobileOpen, setMobileOpen] = useState(false); // Sidebar toggle for mobile
 
   // Menu items with icons
@@ -35,6 +39,17 @@ const Layout = () => {
   // Toggle sidebar
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  // Logout function
+  const handleLogout = () => {
+    // Clear user session from Redux store and localStorage
+    dispatch(setLogin({ token: null, user: null })); // Adjust according to your Redux slice
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    // Redirect to the login page
+    navigate("/login");
   };
 
   // Sidebar content
@@ -92,7 +107,7 @@ const Layout = () => {
       <Box sx={{ mt: "auto", mb: 2, textAlign: "center" }}>
         <ListItem
           button
-          onClick={() => alert("Logged out")} // Replace with actual logout logic
+          onClick={handleLogout} // Trigger logout logic
           sx={{
             justifyContent: "center",
             color: "error.main",
