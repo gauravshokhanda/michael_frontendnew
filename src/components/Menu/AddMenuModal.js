@@ -23,6 +23,7 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
     const [usedSortOrders, setUsedSortOrders] = useState([]);
     const [openEditModal, setOpenEditModal] = useState(false);
     const [newLimit, setNewLimit] = useState(maxSortOrder);
+    const [limitError, setLimitError] = useState('');
 
     useEffect(() => {
         if (open) {
@@ -77,13 +78,20 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
     };
 
     const handleSaveNewLimit = () => {
-        if (newLimit > 0) {
-            dispatch(updateSortOrderLimit(newLimit)); // Update Redux state
+        const numericLimit = parseInt(newLimit, 10); // Parse the value as an integer
+
+        if (isNaN(numericLimit)) {
+            setLimitError('Please enter a valid number'); // Error for non-numeric input
+        } else if (numericLimit > 0) {
+            dispatch(updateSortOrderLimit(numericLimit)); // Update Redux state
             setOpenEditModal(false);
+            setLimitError(''); // Clear error if successfully saved
         } else {
-            alert('Limit must be greater than 0');
+            setLimitError('Limit must be greater than 0'); // Error for invalid range
         }
     };
+
+
 
     const handleOpenEditModal = () => {
         setNewLimit(maxSortOrder);
@@ -184,11 +192,24 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
                         <Typography variant="h6" mb={2}>
                             Update Sort Order Limit
                         </Typography>
+                        {limitError && ( // Conditionally render the error message
+                            <Typography color="error" mb={1} variant="body2">
+                                {limitError}
+                            </Typography>
+                        )}
                         <TextField
                             label="New Limit"
-                            type="number"
+                            type="text"
                             value={newLimit}
-                            onChange={(e) => setNewLimit(Number(e.target.value))}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                if (/^\d*$/.test(value)) { // Allow only numeric values
+                                    setNewLimit(value); // Update the limit value as a string
+                                    setLimitError(''); // Clear error when input is valid
+                                } else {
+                                    setLimitError('Please enter a valid number'); // Show error for invalid input
+                                }
+                            }}
                             fullWidth
                             margin="normal"
                         />
@@ -202,6 +223,7 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
                         </Box>
                     </Box>
                 </Modal>
+
             </Box>
         </Modal>
     );

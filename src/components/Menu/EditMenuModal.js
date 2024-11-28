@@ -7,11 +7,15 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import { useSelector } from 'react-redux'; // Import to access Redux store
 import axios from 'axios';
 
 const EditMenuModal = ({ open, menu, onClose, onSave, onInputChange }) => {
     const [errors, setErrors] = useState({ name: '', link: '', sortOrder: '' });
     const [sortOrderOptions, setSortOrderOptions] = useState([]);
+
+    // Access maxSortOrder from Redux store
+    const maxSortOrder = useSelector((state) => state.sortOrder.maxSortOrder); // Get from Redux store
 
     // Fetch used sort orders from API
     useEffect(() => {
@@ -60,8 +64,8 @@ const EditMenuModal = ({ open, menu, onClose, onSave, onInputChange }) => {
         }
     };
 
-    // Generate options from 1 to 50
-    const allSortOrders = Array.from({ length: 50 }, (_, i) => i + 1);
+    // Generate options from 1 to maxSortOrder
+    const allSortOrders = Array.from({ length: maxSortOrder }, (_, i) => i + 1);
 
     return (
         <Dialog open={open} onClose={onClose}>
@@ -126,4 +130,3 @@ const EditMenuModal = ({ open, menu, onClose, onSave, onInputChange }) => {
 };
 
 export default EditMenuModal;
-
