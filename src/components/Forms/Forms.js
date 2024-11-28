@@ -18,103 +18,90 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { DataGrid } from "@mui/x-data-grid";
 import { useSelector } from "react-redux";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-// Add the Source Editing plugin
-ClassicEditor.defaultConfig = {
-  plugins: [...ClassicEditor.builtinPlugins],
-  toolbar: [
-    "heading",
-    "|",
-    "bold",
-    "italic",
-    "link",
-    "bulletedList",
-    "numberedList",
-    "blockQuote",
-    "|",
-    "undo",
-    "redo",
-    "|",
-  ],
-};
 
-const CMS = () => {
+const Forms = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [open, setOpen] = useState(false); // Modal state
-  const [editMode, setEditMode] = useState(false); // Edit or Add mode
-  const [currentPageId, setCurrentPageId] = useState(null); // ID of the page being edited
-  const [newPage, setNewPage] = useState({
-    title: "",
-    slug: "",
-    body: "",
+  const [open, setOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [currentContactId, setCurrentContactId] = useState(null);
+  const [newContact, setNewContact] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
   });
-  const [validationErrors, setValidationErrors] = useState({});
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deletePageId, setDeletePageId] = useState(null);
+  const [deleteContactId, setDeleteContactId] = useState(null);
   const token = useSelector((state) => state.auth.token);
+  const [validationErrors, setValidationErrors] = useState({});
 
-  const fetchPages = async () => {
+  const fetchContacts = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/contents");
-      if (!response.data || !Array.isArray(response.data)) {
-        throw new Error("Invalid API response structure");
-      }
-      const pages = response.data.map((page) => ({
-        id: page._id,
-        title: page.title || "Untitled",
-        slug: page.slug || "No slug",
-        body: page.body || "No content",
+      const response = await axios.get("http://localhost:5000/api/contacts");
+      console.log("Fetched Data:", response.data);
+
+      const contacts = response.data.map((contact) => ({
+        id: contact._id,
+        name: contact.name || "Unknown",
+        email: contact.email || "No email",
+        phone: contact.number || "No phone", // Adjusted to match the API field "number"
+        subject: contact.subject || "No subject",
+        message: contact.message || "No message",
+        resolved: contact.resolved ? "Yes" : "No",
       }));
-      setRows(pages);
+
+      setRows(contacts);
     } catch (err) {
-      console.error("Error fetching pages:", err.message);
-      setError("Failed to fetch pages. Please try again.");
+      console.error("Error fetching contacts:", err.message);
+      setError("Failed to fetch contacts. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPages();
+    fetchContacts();
   }, []);
 
-  const handleOpen = (page = null) => {
+  const handleOpen = (contact = null) => {
     setOpen(true);
-    if (page) {
+    if (contact) {
       setEditMode(true);
-      setCurrentPageId(page.id);
-      setNewPage({
-        title: page.title,
-        slug: page.slug,
-        body: page.body,
+      setCurrentContactId(contact.id);
+      setNewContact({
+        name: contact.name,
+        email: contact.email,
+        phone: contact.phone,
+        message: contact.message,
       });
     } else {
       setEditMode(false);
-      setCurrentPageId(null);
-      setNewPage({
-        title: "",
-        slug: "",
-        body: "",
+      setCurrentContactId(null);
+      setNewContact({
+        name: "",
+        email: "",
+        phone: "",
+        message: "",
       });
     }
   };
 
   const handleClose = () => {
     setOpen(false);
-    setNewPage({
-      title: "",
-      slug: "",
-      body: "",
+    setNewContact({
+      name: "",
+      email: "",
+      phone: "",
+      message: "",
     });
     setEditMode(false);
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setNewPage({ ...newPage, [name]: value });
+    setNewContact({ ...newContact, [name]: value });
     if (validationErrors[name]) {
       setValidationErrors((prevErrors) => {
         const updatedErrors = { ...prevErrors };
@@ -124,23 +111,12 @@ const CMS = () => {
     }
   };
 
-  const handleBodyChange = (value) => {
-    setNewPage({ ...newPage, body: value });
-    if (validationErrors.body) {
-      setValidationErrors((prevErrors) => {
-        const updatedErrors = { ...prevErrors };
-        delete updatedErrors.body;
-        return updatedErrors;
-      });
-    }
-  };
-
   const handleSubmit = async () => {
     const errors = {};
-
-    if (!newPage.title.trim()) errors.title = "Title is required.";
-    if (!newPage.slug.trim()) errors.slug = "Slug is required.";
-    if (!newPage.body.trim()) errors.body = "Body content is required.";
+    if (!newContact.name.trim()) errors.name = "Name is required.";
+    if (!newContact.email.trim()) errors.email = "Email is required.";
+    if (!newContact.phone.trim()) errors.phone = "Phone number is required.";
+    if (!newContact.message.trim()) errors.message = "Message is required.";
 
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
@@ -151,55 +127,67 @@ const CMS = () => {
 
     try {
       const config = {
-        headers: { "Content-Type": "application/json" },
-        Authorization: `Bearer ${token}`,
+        headers: { Authorization: `Bearer ${token}` },
       };
 
       if (editMode) {
         await axios.put(
-          `http://localhost:5000/api/contents/${currentPageId}`,
-          newPage,
+          `http://localhost:5000/api/contacts/${currentContactId}`,
+          newContact,
           config
         );
-        fetchPages();
+        fetchContacts();
       } else {
-        await axios.post("http://localhost:5000/api/contents", newPage, config);
-        fetchPages();
+        await axios.post(
+          "http://localhost:5000/api/contacts",
+          newContact,
+          config
+        );
+        fetchContacts();
       }
 
       handleClose();
     } catch (error) {
-      console.error("Error submitting page:", error.message);
+      console.error("Error submitting contact:", error.message);
     }
   };
 
   const handleDelete = (id) => {
-    setDeletePageId(id);
+    setDeleteContactId(id);
     setDeleteDialogOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/contents/${deletePageId}`);
-      setRows((prevRows) => prevRows.filter((row) => row.id !== deletePageId));
-      console.log(`Page with ID ${deletePageId} deleted.`);
+      await axios.delete(
+        `http://localhost:5000/api/contacts/${deleteContactId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setRows((prevRows) =>
+        prevRows.filter((row) => row.id !== deleteContactId)
+      );
     } catch (error) {
-      console.error("Error deleting page:", error.message);
+      console.error("Error deleting contact:", error.message);
     } finally {
       setDeleteDialogOpen(false);
-      setDeletePageId(null);
+      setDeleteContactId(null);
     }
   };
 
   const handleDeleteCancel = () => {
     setDeleteDialogOpen(false);
-    setDeletePageId(null);
+    setDeleteContactId(null);
   };
 
   const columns = [
-    { field: "title", headerName: "Title", flex: 1, minWidth: 120 },
-    { field: "slug", headerName: "Slug", flex: 1, minWidth: 150 },
-    { field: "body", headerName: "Content", flex: 1, minWidth: 250 },
+    { field: "name", headerName: "Name", flex: 1, minWidth: 150 },
+    { field: "email", headerName: "Email", flex: 1, minWidth: 200 },
+    { field: "phone", headerName: "Phone", flex: 1, minWidth: 150 },
+    { field: "subject", headerName: "Subject", flex: 1, minWidth: 150 },
+    { field: "message", headerName: "Message", flex: 1, minWidth: 250 },
+    { field: "resolved", headerName: "Resolved", width: 100 },
     {
       field: "actions",
       headerName: "Actions",
@@ -240,9 +228,9 @@ const CMS = () => {
       sx={{ width: "100%", maxWidth: "1000px", margin: "0 auto", padding: 3 }}
     >
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-        <Typography variant="h5">CMS Pages</Typography>
+        <Typography variant="h5">Forms</Typography>
         <Button variant="contained" onClick={() => handleOpen()}>
-          Add Page
+          Add Contact
         </Button>
       </Box>
       <Box sx={{ height: 600 }}>
@@ -264,7 +252,7 @@ const CMS = () => {
         <DialogTitle id="delete-dialog-title">Confirm Delete</DialogTitle>
         <DialogContent>
           <DialogContentText id="delete-dialog-description">
-            Are you sure you want to delete this page? This action cannot be
+            Are you sure you want to delete this contact? This action cannot be
             undone.
           </DialogContentText>
         </DialogContent>
@@ -280,7 +268,6 @@ const CMS = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Add/Edit Page Modal */}
       <Modal open={open} onClose={handleClose}>
         <Box
           sx={{
@@ -290,59 +277,67 @@ const CMS = () => {
             transform: "translate(-50%, -50%)",
             width: 400,
             bgcolor: "background.paper",
-            border: "2px solid #000",
             boxShadow: 24,
             p: 4,
+            borderRadius: 2,
           }}
         >
-          <Typography variant="h6" component="h2">
-            {editMode ? "Edit Page" : "Add Page"}
+          <Typography variant="h6" mb={2}>
+            {editMode ? "Edit Contact" : "Add New Contact"}
           </Typography>
           <TextField
-            label="Title"
-            name="title"
-            value={newPage.title}
-            onChange={handleChange}
-            error={!!validationErrors.title}
-            helperText={validationErrors.title}
             fullWidth
+            label="Name"
+            name="name"
+            value={newContact.name}
+            onChange={handleChange}
             margin="normal"
+            error={!!validationErrors.name}
+            helperText={validationErrors.name}
           />
           <TextField
-            label="Slug"
-            name="slug"
-            value={newPage.slug}
-            onChange={handleChange}
-            error={!!validationErrors.slug}
-            helperText={validationErrors.slug}
             fullWidth
+            label="Email"
+            name="email"
+            value={newContact.email}
+            onChange={handleChange}
             margin="normal"
+            error={!!validationErrors.email}
+            helperText={validationErrors.email}
           />
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="body1" gutterBottom>
-              Body Content
-            </Typography>
-            <CKEditor
-              editor={ClassicEditor}
-              data={newPage.body}
-              onChange={(event, editor) => handleBodyChange(editor.getData())}
-            />
-          </Box>
-          {validationErrors.body && (
-            <Typography color="error">{validationErrors.body}</Typography>
-          )}
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-            <Button onClick={handleClose} sx={{ mr: 2 }}>
-              Cancel
-            </Button>
-            <Button onClick={handleSubmit} variant="contained">
-              {editMode ? "Update" : "Create"}
-            </Button>
-          </Box>
+          <TextField
+            fullWidth
+            label="Phone"
+            name="phone"
+            value={newContact.phone}
+            onChange={handleChange}
+            margin="normal"
+            error={!!validationErrors.phone}
+            helperText={validationErrors.phone}
+          />
+          <TextField
+            fullWidth
+            label="Message"
+            name="message"
+            value={newContact.message}
+            onChange={handleChange}
+            margin="normal"
+            error={!!validationErrors.message}
+            helperText={validationErrors.message}
+          />
+          <Button
+            fullWidth
+            variant="contained"
+            color="primary"
+            sx={{ mt: 3 }}
+            onClick={handleSubmit}
+          >
+            {editMode ? "Update Contact" : "Submit"}
+          </Button>
         </Box>
       </Modal>
     </Box>
   );
 };
 
-export default CMS;
+export default Forms;
