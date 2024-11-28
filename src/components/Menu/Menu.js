@@ -16,6 +16,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useSelector } from "react-redux";
+import { baseURL } from "../../config/apiConfig.js";
 
 const MenuTable = ({ refreshTable }) => {
   const [rows, setRows] = useState([]);
@@ -35,7 +36,7 @@ const MenuTable = ({ refreshTable }) => {
   const fetchMenus = () => {
     setLoading(true);
     axios
-      .get("http://localhost:5000/api/menus/", {
+      .get(`${baseURL}/menus/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -62,7 +63,7 @@ const MenuTable = ({ refreshTable }) => {
 
   const handleDelete = () => {
     axios
-      .delete(`http://localhost:5000/api/menus/${menuToDelete}`, {
+      .delete(`${baseURL}menus/${menuToDelete}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -93,7 +94,7 @@ const MenuTable = ({ refreshTable }) => {
   const handleEditSave = () => {
     axios
       .put(
-        `http://localhost:5000/api/menus/${currentMenu.id}`,
+        `${baseURL}/menus/${currentMenu.id}`,
         {
           name: currentMenu.name,
           link: currentMenu.link,
@@ -132,7 +133,7 @@ const MenuTable = ({ refreshTable }) => {
   const handleAddSave = (menuData) => {
     axios
       .post(
-        "http://localhost:5000/api/menus/",
+        `${baseURL}/menus/`,
         {
           name: menuData.name,
           link: menuData.link,

@@ -45,9 +45,44 @@ const Login = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#f9fafb",
+        backgroundImage: "linear-gradient(to bottom right, #1976d2, #4caf50)",
+        animation: "gradientAnimation 6s ease infinite",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
+      {/* Background Animations */}
+      <Box
+        sx={{
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          zIndex: 1,
+          animation: "floatingCircles 8s infinite",
+          pointerEvents: "none",
+          backgroundImage:
+            "radial-gradient(circle, rgba(255, 255, 255, 0.1) 1%, transparent 80%)",
+          backgroundSize: "150px 150px",
+        }}
+      />
+
+      {/* Overlay Text */}
+      <Typography
+        variant="h1"
+        sx={{
+          position: "absolute",
+          top: "10%",
+          fontSize: "2.5rem",
+          fontWeight: "bold",
+          color: "#ffffff",
+          opacity: 0.9,
+          textShadow: "2px 2px 10px rgba(0, 0, 0, 0.5)",
+          zIndex: 2,
+        }}
+      >
+        Admin Panel AITSTAX
+      </Typography>
+
       <Card
         sx={{
           width: 360,
@@ -55,6 +90,8 @@ const Login = () => {
           boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
           borderRadius: "10px",
           backgroundColor: "#ffffff",
+          position: "relative",
+          zIndex: 3,
         }}
       >
         <Typography
@@ -91,54 +128,38 @@ const Login = () => {
               },
             }}
           />
-          <Box
+          <TextField
+            label="Password"
+            variant="outlined"
+            fullWidth
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              marginBottom: 2,
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "#cccccc",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#666666",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#1976d2",
+                },
+              },
+            }}
+          />
+          <FormControlLabel
+            control={<Checkbox sx={{ padding: "0 5px" }} />}
+            label="Remember me"
+            sx={{
+              "& .MuiTypography-root": {
+                fontSize: "0.875rem",
+              },
               marginBottom: 2,
             }}
-          >
-            <TextField
-              label="Password"
-              variant="outlined"
-              fullWidth
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    borderColor: "#cccccc",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "#666666",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#1976d2",
-                  },
-                },
-              }}
-            />
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: 3,
-            }}
-          >
-            <FormControlLabel
-              control={<Checkbox sx={{ padding: "0 5px" }} />}
-              label="Remember me"
-              sx={{
-                "& .MuiTypography-root": {
-                  fontSize: "0.875rem",
-                },
-              }}
-            />
-          </Box>
+          />
           {error && (
             <Typography
               color="error"
@@ -171,6 +192,22 @@ const Login = () => {
           </Button>
         </form>
       </Card>
+
+      <style>
+        {`
+          @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+
+          @keyframes floatingCircles {
+            0% { transform: translateY(0); opacity: 1; }
+            50% { transform: translateY(-20px); opacity: 0.7; }
+            100% { transform: translateY(0); opacity: 1; }
+          }
+        `}
+      </style>
     </Box>
   );
 };
