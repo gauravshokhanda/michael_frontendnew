@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { TextField, Button, Box, Typography } from "@mui/material";
-import API from "../../config/apiConfig";
+import { API } from "../../config/apiConfig";
 import { setLogin } from "../../redux/slices/authSlice";
 
 const Login = () => {
