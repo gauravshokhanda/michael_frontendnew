@@ -1,5 +1,14 @@
 import React from "react";
-import { Drawer, Box, List, ListItem, ListItemText } from "@mui/material";
+import {
+  Drawer,
+  Box,
+  List,
+  ListItem,
+  ListItemText,
+  AppBar,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import { Outlet, Link } from "react-router-dom";
 
 const Layout = () => {
@@ -12,10 +21,30 @@ const Layout = () => {
 
   return (
     <Box sx={{ display: "flex" }}>
+      {/* Header */}
+      <AppBar
+        position="fixed"
+        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      >
+        <Toolbar>
+          <Typography variant="h6" noWrap component="div">
+            My Application
+          </Typography>
+        </Toolbar>
+      </AppBar>
+
+      {/* Sidebar */}
       <Drawer
         variant="permanent"
-        sx={{ width: 240, "& .MuiDrawer-paper": { width: 240 } }}
+        sx={{
+          width: 240,
+          "& .MuiDrawer-paper": {
+            width: 240,
+            boxSizing: "border-box",
+          },
+        }}
       >
+        <Toolbar /> {/* This adds space below the AppBar */}
         <List>
           {menuItems.map((item, index) => (
             <ListItem button component={Link} to={item.path} key={index}>
@@ -24,7 +53,17 @@ const Layout = () => {
           ))}
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+
+      {/* Main Content */}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          marginTop: 8, // Adjust for AppBar height
+        }}
+      >
+        <Toolbar /> {/* This keeps content below the AppBar */}
         <Outlet />
       </Box>
     </Box>

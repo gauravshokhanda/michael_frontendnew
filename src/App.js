@@ -6,10 +6,22 @@ import store, { persistor } from "./redux/store";
 import Layout from "./components/Layout/Layout";
 import Login from "./components/Login/Login";
 import Dashboard from "./components/Dashboard/Dashboard";
+import Blogs from "./components/Blogs/Blogs";
+import Menu from "./components/Menu/Menu";
+import Forms from "./components/Forms/Forms";
 
+// ProtectedRoute Component
 const ProtectedRoute = ({ children }) => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  const token = useSelector((state) => state.auth.token);
+
+  // Check if the user is authenticated or has a valid token
+  if (isAuthenticated && token) {
+    return children; // Allow access to protected routes
+  }
+
+  // Redirect to login if not authenticated or token is missing
+  return <Navigate to="/login" />;
 };
 
 const App = () => {
@@ -18,7 +30,10 @@ const App = () => {
       <PersistGate loading={null} persistor={persistor}>
         <BrowserRouter>
           <Routes>
+            {/* Login Route */}
             <Route path="/login" element={<Login />} />
+
+            {/* Protected Routes */}
             <Route
               path="/"
               element={
@@ -28,6 +43,9 @@ const App = () => {
               }
             >
               <Route index element={<Dashboard />} />
+              <Route path="blogs" element={<Blogs />} />
+              <Route path="menu" element={<Menu />} />
+              <Route path="forms" element={<Forms />} />
             </Route>
           </Routes>
         </BrowserRouter>
