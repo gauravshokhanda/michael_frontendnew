@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { DataGrid } from '@mui/x-data-grid';
-import Card from '@mui/material/Card';
-import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
-import AddMenuModal from './AddMenuModal.js';
-import EditMenuModal from './EditMenuModal.js';
-import EditIcon from '@mui/icons-material/Edit';
-import IconButton from '@mui/material/IconButton';
-import DeleteIcon from '@mui/icons-material/Delete';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { DataGrid } from "@mui/x-data-grid";
+import Card from "@mui/material/Card";
+import Typography from "@mui/material/Typography";
+import Grid from "@mui/material/Grid";
+import AddMenuModal from "./AddMenuModal.js";
+import EditMenuModal from "./EditMenuModal.js";
+import EditIcon from "@mui/icons-material/Edit";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import { useSelector } from "react-redux";
 
 const MenuTable = ({ refreshTable }) => {
   const [rows, setRows] = useState([]);
@@ -24,13 +24,18 @@ const MenuTable = ({ refreshTable }) => {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [menuToDelete, setMenuToDelete] = useState(null);
-  const [currentMenu, setCurrentMenu] = useState({ id: '', name: '', link: '', sortOrder: '' });
+  const [currentMenu, setCurrentMenu] = useState({
+    id: "",
+    name: "",
+    link: "",
+    sortOrder: "",
+  });
   const token = useSelector((state) => state.auth.token);
 
   const fetchMenus = () => {
     setLoading(true);
     axios
-      .get('http://localhost:5000/api/menus/', {
+      .get("http://localhost:5000/api/menus/", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -50,7 +55,7 @@ const MenuTable = ({ refreshTable }) => {
         setLoading(false);
       })
       .catch((error) => {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
         setLoading(false);
       });
   };
@@ -63,12 +68,14 @@ const MenuTable = ({ refreshTable }) => {
         },
       })
       .then(() => {
-        setRows((prevRows) => prevRows.filter((row) => row.id !== menuToDelete));
-        console.log('Menu deleted successfully.');
+        setRows((prevRows) =>
+          prevRows.filter((row) => row.id !== menuToDelete)
+        );
+        console.log("Menu deleted successfully.");
         setDeleteDialogOpen(false);
       })
       .catch((error) => {
-        console.error('Error deleting menu:', error);
+        console.error("Error deleting menu:", error);
         setDeleteDialogOpen(false);
       });
   };
@@ -103,18 +110,18 @@ const MenuTable = ({ refreshTable }) => {
           prevRows.map((row) =>
             row.id === currentMenu.id
               ? {
-                ...row,
-                name: currentMenu.name,
-                link: currentMenu.link,
-                sortOrder: currentMenu.sortOrder,
-              }
+                  ...row,
+                  name: currentMenu.name,
+                  link: currentMenu.link,
+                  sortOrder: currentMenu.sortOrder,
+                }
               : row
           )
         );
         setEditModalOpen(false);
       })
       .catch((error) => {
-        console.error('Error updating menu:', error);
+        console.error("Error updating menu:", error);
       });
   };
 
@@ -125,7 +132,7 @@ const MenuTable = ({ refreshTable }) => {
   const handleAddSave = (menuData) => {
     axios
       .post(
-        'http://localhost:5000/api/menus/',
+        "http://localhost:5000/api/menus/",
         {
           name: menuData.name,
           link: menuData.link,
@@ -152,34 +159,65 @@ const MenuTable = ({ refreshTable }) => {
         setAddModalOpen(false);
       })
       .catch((error) => {
-        console.error('Error adding menu:', error);
+        console.error("Error adding menu:", error);
       });
   };
 
   useEffect(() => {
     fetchMenus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshTable]);
 
   if (loading) {
-    return <Typography variant="h6" align="center">Loading data...</Typography>;
+    return (
+      <Typography variant="h6" align="center">
+        Loading data...
+      </Typography>
+    );
   }
 
   return (
     <>
-      <Grid item xs={11} lg={11} sx={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
-        <Button variant="contained" onClick={() => setAddModalOpen(true)}>Add Menu</Button>
+      <Grid
+        item
+        xs={11}
+        lg={11}
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginBottom: "10px",
+        }}
+      >
+        <Button variant="contained" onClick={() => setAddModalOpen(true)}>
+          Add Menu
+        </Button>
       </Grid>
       <Card>
         <DataGrid
           rows={rows}
           columns={[
-            { field: 'serialNumber', headerName: 'S.No', flex: 0.1, minWidth: 100 },
-            { field: 'name', headerName: 'Menu Name', flex: 0.3, minWidth: 200 },
-            { field: 'link', headerName: 'Slug', flex: 0.3, minWidth: 200 },
-            { field: 'sortOrder', headerName: 'Sort Order', flex: 0.2, minWidth: 150 },
             {
-              field: 'Action',
-              headerName: 'Action',
+              field: "serialNumber",
+              headerName: "S.No",
+              flex: 0.1,
+              minWidth: 100,
+            },
+            {
+              field: "name",
+              headerName: "Menu Name",
+              flex: 0.3,
+              minWidth: 200,
+            },
+            { field: "link", headerName: "Slug", flex: 0.3, minWidth: 200 },
+            {
+              field: "sortOrder",
+              headerName: "Sort Order",
+              flex: 0.2,
+              minWidth: 150,
+            },
+            {
+              field: "Action",
+              headerName: "Action",
               flex: 0.3,
               minWidth: 200,
               renderCell: ({ row }) => (
