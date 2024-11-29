@@ -19,14 +19,15 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { DataGrid } from "@mui/x-data-grid";
 import { useSelector } from "react-redux";
 import { baseURL } from "../../config/apiConfig";
+import { Editor } from "@tinymce/tinymce-react"; // Import the TinyMCE React component
 
 const Blogs = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [open, setOpen] = useState(false); // Modal state
-  const [editMode, setEditMode] = useState(false); // Edit or Add mode
-  const [currentBlogId, setCurrentBlogId] = useState(null); // ID of blog being edited
+  const [open, setOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [currentBlogId, setCurrentBlogId] = useState(null);
   const [newBlog, setNewBlog] = useState({
     title: "",
     content: "",
@@ -36,11 +37,12 @@ const Blogs = () => {
   });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteBlogId, setDeleteBlogId] = useState(null);
-  const [image, setImage] = useState(null); // Image file
-  const [preview, setPreview] = useState(null); // Image preview URL
+  const [image, setImage] = useState(null);
+  const [preview, setPreview] = useState(null);
   const token = useSelector((state) => state.auth.token);
   const [validationErrors, setValidationErrors] = useState({});
 
+  // Fetch blogs from the API
   const fetchBlogs = async () => {
     try {
       const response = await axios.get(`${baseURL}/blogs/`);
@@ -67,12 +69,11 @@ const Blogs = () => {
       setLoading(false);
     }
   };
-  // Fetch blogs from the API
+
   useEffect(() => {
     fetchBlogs();
   }, []);
 
-  // Handle modal open/close
   const handleOpen = (blog = null) => {
     setOpen(true);
     if (blog) {
@@ -85,7 +86,7 @@ const Blogs = () => {
         tags: blog.tags,
         published: "Yes",
       });
-      setPreview(null); // You can set an image preview here if the blog has an image URL
+      setPreview(null);
     } else {
       setEditMode(false);
       setCurrentBlogId(null);
@@ -114,7 +115,6 @@ const Blogs = () => {
     setEditMode(false);
   };
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNewBlog({ ...newBlog, [name]: value });
@@ -127,31 +127,26 @@ const Blogs = () => {
     }
   };
 
-  // Handle image upload
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     setImage(file);
-    setPreview(URL.createObjectURL(file)); // Generate preview URL
+    setPreview(URL.createObjectURL(file));
   };
 
-  // Handle blog submission (Add or Edit)
   const handleSubmit = async () => {
     const errors = {};
-
     if (!newBlog.title.trim()) errors.title = "Title is required.";
     if (!newBlog.content.trim()) errors.content = "Content is required.";
     if (!newBlog.author.trim()) errors.author = "Author is required.";
     if (!newBlog.tags.trim()) errors.tags = "Tags are required.";
-    if (!image) errors.image = "Image is required.";
+    if (!image && !editMode) errors.image = "Image is required.";
 
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
       return;
     }
 
-    // Reset validation errors
     setValidationErrors({});
-
     const formData = new FormData();
     formData.append("title", newBlog.title);
     formData.append("content", newBlog.content);
@@ -171,30 +166,18 @@ const Blogs = () => {
       };
 
       if (editMode) {
-        const response = await axios.put(
-          `${baseURL}/blogs/${currentBlogId}`,
-          formData,
-          config
-        );
-        console.log("Blog updated:", response.data);
-        fetchBlogs();
+        await axios.put(`${baseURL}/blogs/${currentBlogId}`, formData, config);
       } else {
-        const response = await axios.post(
-          `${baseURL}/blogs/`,
-          formData,
-          config
-        );
-        console.log("Blog added:", response.data);
-        fetchBlogs();
+        await axios.post(`${baseURL}/blogs/`, formData, config);
       }
 
+      fetchBlogs();
       handleClose();
     } catch (error) {
       console.error("Error submitting blog:", error.message);
     }
   };
 
-  // Handle blog delete
   const handleDelete = (id) => {
     setDeleteBlogId(id);
     setDeleteDialogOpen(true);
@@ -206,7 +189,6 @@ const Blogs = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRows((prevRows) => prevRows.filter((row) => row.id !== deleteBlogId));
-      console.log(`Blog with ID ${deleteBlogId} deleted.`);
     } catch (error) {
       console.error("Error deleting blog:", error.message);
     } finally {
@@ -219,18 +201,17 @@ const Blogs = () => {
     setDeleteDialogOpen(false);
     setDeleteBlogId(null);
   };
+
   const columns = [
-    { field: "title", headerName: "Title", flex: 1, minWidth: 120 },
-    { field: "content", headerName: "Content", flex: 1, minWidth: 250 },
-    { field: "author", headerName: "Author", flex: 1, minWidth: 150 },
-    { field: "tags", headerName: "Tags", flex: 1, minWidth: 150 },
+    { field: "title", headerName: "Title", flex: 1 },
+    { field: "content", headerName: "Content", flex: 2 },
+    { field: "author", headerName: "Author", flex: 1 },
+    { field: "tags", headerName: "Tags", flex: 1 },
     { field: "published", headerName: "Published", width: 120 },
     {
       field: "actions",
       headerName: "Actions",
-      flex: 1,
-      minWidth: 100,
-      sortable: false,
+      width: 150,
       renderCell: (params) => (
         <Box sx={{ display: "flex", gap: 1 }}>
           <IconButton color="primary" onClick={() => handleOpen(params.row)}>
@@ -261,9 +242,7 @@ const Blogs = () => {
   }
 
   return (
-    <Box
-      sx={{ width: "100%", maxWidth: "1000px", margin: "0 auto", padding: 3 }}
-    >
+    <Box sx={{ width: "100%", maxWidth: "1000px", margin: "0 auto", p: 3 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="h5">Blogs</Typography>
         <Button variant="contained" onClick={() => handleOpen()}>
@@ -276,36 +255,24 @@ const Blogs = () => {
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5]}
-          disableRowSelectionOnClick
         />
       </Box>
-
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={handleDeleteCancel}
-        aria-labelledby="delete-dialog-title"
-        aria-describedby="delete-dialog-description"
-      >
-        <DialogTitle id="delete-dialog-title">Confirm Delete</DialogTitle>
+      {/* Delete confirmation modal */}
+      <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
+        <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
-          <DialogContentText id="delete-dialog-description">
-            Are you sure you want to delete this blog? This action cannot be
-            undone.
+          <DialogContentText>
+            Are you sure you want to delete this blog? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDeleteCancel}>Cancel</Button>
-          <Button
-            onClick={handleDeleteConfirm}
-            color="error"
-            variant="contained"
-          >
+          <Button color="error" variant="contained" onClick={handleDeleteConfirm}>
             Delete
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* Add/Edit Blog Modal */}
+      {/* Blog creation/edit modal */}
       <Modal open={open} onClose={handleClose}>
         <Box
           sx={{
@@ -313,57 +280,78 @@ const Blogs = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 400,
+            width: "80vw",
+            p: { xs: 2, sm: 4 },
             bgcolor: "background.paper",
             boxShadow: 24,
-            p: 4,
             borderRadius: 2,
+            maxHeight: "90vh", // Limit the height of the modal
+            overflowY: "auto", // Enable vertical scrolling if content overflows
           }}
         >
-          <Typography variant="h6" mb={2}>
-            {editMode ? "Edit Blog" : "Add New Blog"}
+          <Typography variant="h6" component="h2" mb={2}>
+            {editMode ? "Edit Blog" : "Add Blog"}
           </Typography>
           <TextField
-            fullWidth
             label="Title"
             name="title"
+            fullWidth
             value={newBlog.title}
             onChange={handleChange}
-            margin="normal"
             error={!!validationErrors.title}
             helperText={validationErrors.title}
+            sx={{ mb: 2 }}
           />
+          <Box sx={{ mb: 2 }}>
+            <Editor
+              apiKey="e9k37zmak3axn7rdzie5egp1k8hn9f943e71mz093ueusvyn"
+              
+              initialValue={newBlog.content}
+              init={{
+                menubar: true,
+                plugins: [
+                  'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                  'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                  'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+                ], 
+                toolbar: 'undo redo | blocks | ' +
+                  'bold italic forecolor | alignleft aligncenter ' +
+                  'alignright alignjustify | bullist numlist outdent indent | ' +
+                  'removeformat | help',
+                 code_toolbar: "code",
+                readonly: false,
+              }}
+              onEditorChange={(newContent) => {
+                setNewBlog({ ...newBlog, content: newContent });
+              }}
+            />
+            {validationErrors.content && (
+              <Typography color="error" variant="caption">
+                {validationErrors.content}
+              </Typography>
+            )}
+          </Box>
           <TextField
-            fullWidth
-            label="Content"
-            name="content"
-            value={newBlog.content}
-            onChange={handleChange}
-            margin="normal"
-            error={!!validationErrors.content}
-            helperText={validationErrors.content}
-          />
-          <TextField
-            fullWidth
             label="Author"
             name="author"
+            fullWidth
             value={newBlog.author}
             onChange={handleChange}
-            margin="normal"
             error={!!validationErrors.author}
             helperText={validationErrors.author}
+            sx={{ mb: 2 }}
           />
           <TextField
-            fullWidth
-            label="Tags (comma-separated)"
+            label="Tags"
             name="tags"
+            fullWidth
             value={newBlog.tags}
             onChange={handleChange}
-            margin="normal"
             error={!!validationErrors.tags}
             helperText={validationErrors.tags}
+            sx={{ mb: 2 }}
           />
-          <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
+          <Box sx={{ mb: 2 }}>
             <Button variant="contained" component="label">
               Upload Image
               <input
@@ -373,32 +361,47 @@ const Blogs = () => {
                 onChange={handleImageUpload}
               />
             </Button>
+            {validationErrors.image && (
+              <Typography color="error" variant="caption">
+                {validationErrors.image}
+              </Typography>
+            )}
             {preview && (
               <Box
-                component="img"
-                src={preview}
-                alt="Preview"
-                sx={{ width: 100, height: 100, ml: 2, borderRadius: 1 }}
-              />
+                sx={{
+                  mt: 2,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <img
+                  src={preview}
+                  alt="Preview"
+                  style={{
+                    maxHeight: "150px",
+                    maxWidth: "100%",
+                    borderRadius: "8px",
+                  }}
+                />
+              </Box>
             )}
           </Box>
-          {validationErrors.image && (
-            <Typography color="error" variant="body2" sx={{ mt: 1 }}>
-              {validationErrors.image}
-            </Typography>
-          )}
-
-          <Button
-            fullWidth
-            variant="contained"
-            color="primary"
-            sx={{ mt: 3 }}
-            onClick={handleSubmit}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              mt: 2,
+            }}
           >
-            {editMode ? "Update Blog" : "Submit"}
-          </Button>
+            <Button variant="contained" color="primary" onClick={handleSubmit}>
+              {editMode ? "Update Blog" : "Add Blog"}
+            </Button>
+          </Box>
         </Box>
       </Modal>
+
     </Box>
   );
 };
