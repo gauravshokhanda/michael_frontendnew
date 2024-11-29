@@ -14,6 +14,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateSortOrderLimit } from "../../redux/slices/sortOrderSlice";
 import axios from "axios";
 import { baseURL } from "../../config/apiConfig";
+import { Editor } from "@tinymce/tinymce-react";
+
 
 const AddMenuModal = ({ open, onClose, onSave }) => {
   const dispatch = useDispatch();
@@ -128,15 +130,20 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: 600,
+          maxHeight: "80vh", // Restrict height to make it scrollable
+          overflowY: "auto", // Enable vertical scrolling
           bgcolor: "background.paper",
-          boxShadow: 28,
-          p: 5,
-          borderRadius: 2,
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 4,
+          border: "2px solid #1976d2",
         }}
       >
-        <Typography variant="h6" mb={2} color="primary">
-          Add New page
+        <Typography variant="h5" mb={2} color="primary" fontWeight="bold">
+          Add New Page
         </Typography>
+
+        {/* Page Name Input */}
         <TextField
           fullWidth
           label="Page Name"
@@ -145,8 +152,12 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
           margin="normal"
           error={Boolean(errors.name)}
           helperText={errors.name}
+          InputProps={{
+            sx: { borderRadius: 2 }, // Rounded input fields
+          }}
         />
 
+        {/* Meta Data Input */}
         <TextField
           fullWidth
           label="Meta Data"
@@ -155,18 +166,42 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
           margin="normal"
           error={Boolean(errors.meta_data)}
           helperText={errors.meta_data}
+          InputProps={{
+            sx: { borderRadius: 2 },
+          }}
         />
 
-        <TextField
-          fullWidth
-          label="Content"
-          value={menuData.content}
-          onChange={(e) => handleInputChange("content", e.target.value)}
-          margin="normal"
-          error={Boolean(errors.content)}
-          helperText={errors.content}
-        />
+        {/* Content Editor */}
+        <Box mt={3}>
+          <Typography variant="body1" mb={1} fontWeight="bold">
+            Content
+          </Typography>
+          <Editor
+            apiKey="e9k37zmak3axn7rdzie5egp1k8hn9f943e71mz093ueusvyn"
+            value={menuData.content}
+            init={{
+              height: 300,
+              menubar: false,
+              plugins: [
+                "advlist autolink lists link image charmap print preview anchor",
+                "searchreplace visualblocks code fullscreen",
+                "insertdatetime media table paste code help wordcount",
+              ],
+              toolbar:
+                "undo redo | formatselect | bold italic backcolor | \
+            alignleft aligncenter alignright alignjustify | \
+            bullist numlist outdent indent | removeformat | help",
+            }}
+            onEditorChange={(content) => handleInputChange("content", content)}
+          />
+          {Boolean(errors.content) && (
+            <Typography color="error" variant="body2" mt={1}>
+              {errors.content}
+            </Typography>
+          )}
+        </Box>
 
+        {/* Page Slug Input */}
         <TextField
           fullWidth
           label="Page Slug"
@@ -175,13 +210,13 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
           margin="normal"
           error={Boolean(errors.link)}
           helperText={errors.link}
+          InputProps={{
+            sx: { borderRadius: 2 },
+          }}
         />
 
-        <FormControl
-          fullWidth
-          margin="normal"
-          error={Boolean(errors.sortOrder)}
-        >
+        {/* Sort Order */}
+        <FormControl fullWidth margin="normal" error={Boolean(errors.sortOrder)}>
           <InputLabel id="sort-order-label">Sort Order</InputLabel>
           <Box display="flex" alignItems="center" gap={2}>
             <Select
@@ -190,6 +225,7 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
               value={menuData.sortOrder}
               onChange={(e) => handleInputChange("sortOrder", e.target.value)}
               fullWidth
+              sx={{ borderRadius: 2 }}
             >
               {[...Array(maxSortOrder).keys()].map((num) => (
                 <MenuItem
@@ -204,22 +240,33 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
             <IconButton
               color="primary"
               onClick={handleOpenEditModal}
-              sx={{ ml: 1 }} // Slight margin-left for spacing
+              sx={{ ml: 1, borderRadius: 2, bgcolor: "primary.light", color: "white" }}
             >
               <EditIcon />
             </IconButton>
           </Box>
         </FormControl>
 
-        <Box mt={2} display="flex" justifyContent="flex-end">
-          <Button onClick={onClose} color="secondary" sx={{ mr: 1 }}>
+        {/* Footer Buttons */}
+        <Box mt={3} display="flex" justifyContent="flex-end">
+          <Button
+            onClick={onClose}
+            color="secondary"
+            sx={{ mr: 1, borderRadius: 2 }}
+          >
             Cancel
           </Button>
-          <Button onClick={handleSave} variant="contained" color="primary">
+          <Button
+            onClick={handleSave}
+            variant="contained"
+            color="primary"
+            sx={{ borderRadius: 2 }}
+          >
             Save
           </Button>
         </Box>
 
+        {/* Nested Modal */}
         <Modal open={openEditModal} onClose={handleCloseEditModal}>
           <Box
             sx={{
@@ -231,13 +278,14 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
               bgcolor: "background.paper",
               boxShadow: 24,
               p: 4,
-              borderRadius: 2,
+              borderRadius: 4,
+              border: "2px solid #1976d2",
             }}
           >
-            <Typography variant="h6" mb={2}>
+            <Typography variant="h6" mb={2} fontWeight="bold">
               Update Sort Order Limit
             </Typography>
-            {limitError && ( // Conditionally render the error message
+            {limitError && (
               <Typography color="error" mb={1} variant="body2">
                 {limitError}
               </Typography>
@@ -249,21 +297,23 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
               onChange={(e) => {
                 const value = e.target.value;
                 if (/^\d*$/.test(value)) {
-                  // Allow only numeric values
-                  setNewLimit(value); // Update the limit value as a string
-                  setLimitError(""); // Clear error when input is valid
+                  setNewLimit(value);
+                  setLimitError("");
                 } else {
-                  setLimitError("Please enter a valid number"); // Show error for invalid input
+                  setLimitError("Please enter a valid number");
                 }
               }}
               fullWidth
               margin="normal"
+              InputProps={{
+                sx: { borderRadius: 2 },
+              }}
             />
-            <Box mt={2} display="flex" justifyContent="flex-end">
+            <Box mt={3} display="flex" justifyContent="flex-end">
               <Button
                 onClick={handleCloseEditModal}
                 color="secondary"
-                sx={{ mr: 1 }}
+                sx={{ mr: 1, borderRadius: 2 }}
               >
                 Cancel
               </Button>
@@ -271,6 +321,7 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
                 onClick={handleSaveNewLimit}
                 variant="contained"
                 color="primary"
+                sx={{ borderRadius: 2 }}
               >
                 Save
               </Button>
@@ -279,6 +330,7 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
         </Modal>
       </Box>
     </Modal>
+
   );
 };
 

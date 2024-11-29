@@ -19,7 +19,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { DataGrid } from "@mui/x-data-grid";
 import { useSelector } from "react-redux";
 import { baseURL } from "../../config/apiConfig";
-import { Editor } from "@tinymce/tinymce-react"; // Import the TinyMCE React component
+import { Editor } from "@tinymce/tinymce-react";
 
 const Blogs = () => {
   const [rows, setRows] = useState([]);
@@ -32,7 +32,6 @@ const Blogs = () => {
     title: "",
     content: "",
     author: "",
-    tags: "",
     published: "Yes",
   });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -42,7 +41,6 @@ const Blogs = () => {
   const token = useSelector((state) => state.auth.token);
   const [validationErrors, setValidationErrors] = useState({});
 
-  // Fetch blogs from the API
   const fetchBlogs = async () => {
     try {
       const response = await axios.get(`${baseURL}/blogs/`);
@@ -58,7 +56,7 @@ const Blogs = () => {
         title: blog.title || "Untitled",
         content: blog.content || "No content",
         author: blog.author || "Unknown",
-        tags: Array.isArray(blog.tags) ? blog.tags.join(", ") : "No tags",
+        image: blog.image || null, // Ensure to fetch image URL
         published: "Yes",
       }));
       setRows(blogs);
@@ -83,10 +81,9 @@ const Blogs = () => {
         title: blog.title,
         content: blog.content,
         author: blog.author,
-        tags: blog.tags,
         published: "Yes",
       });
-      setPreview(null);
+      setPreview(blog.image || null);
     } else {
       setEditMode(false);
       setCurrentBlogId(null);
@@ -94,7 +91,6 @@ const Blogs = () => {
         title: "",
         content: "",
         author: "",
-        tags: "",
         published: "Yes",
       });
       setPreview(null);
@@ -107,7 +103,6 @@ const Blogs = () => {
       title: "",
       content: "",
       author: "",
-      tags: "",
       published: "Yes",
     });
     setImage(null);
@@ -138,7 +133,6 @@ const Blogs = () => {
     if (!newBlog.title.trim()) errors.title = "Title is required.";
     if (!newBlog.content.trim()) errors.content = "Content is required.";
     if (!newBlog.author.trim()) errors.author = "Author is required.";
-    if (!newBlog.tags.trim()) errors.tags = "Tags are required.";
     if (!image && !editMode) errors.image = "Image is required.";
 
     if (Object.keys(errors).length > 0) {
@@ -151,7 +145,6 @@ const Blogs = () => {
     formData.append("title", newBlog.title);
     formData.append("content", newBlog.content);
     formData.append("author", newBlog.author);
-    formData.append("tags", newBlog.tags);
     formData.append("published", newBlog.published);
     if (image) {
       formData.append("image", image);
@@ -206,7 +199,21 @@ const Blogs = () => {
     { field: "title", headerName: "Title", flex: 1 },
     { field: "content", headerName: "Content", flex: 2 },
     { field: "author", headerName: "Author", flex: 1 },
-    { field: "tags", headerName: "Tags", flex: 1 },
+    {
+      field: "image",
+      headerName: "Image",
+      width: 150,
+      renderCell: (params) =>
+        params.row.image ? (
+          <img
+            src={params.row.image}
+            alt="Blog"
+            style={{ width: "100%", height: "auto", borderRadius: "8px" }}
+          />
+        ) : (
+          "No Image"
+        ),
+    },
     { field: "published", headerName: "Published", width: 120 },
     {
       field: "actions",
@@ -280,127 +287,130 @@ const Blogs = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: "80vw",
-            p: { xs: 2, sm: 4 },
+            width: { xs: "90vw", sm: "80vw", md: "50vw" },
+            maxHeight: "90vh",
+            overflowY: "auto", // Allows scrolling if content overflows
             bgcolor: "background.paper",
             boxShadow: 24,
             borderRadius: 2,
-            maxHeight: "90vh", // Limit the height of the modal
-            overflowY: "auto", // Enable vertical scrolling if content overflows
+            display: "flex",
+            flexDirection: "column",
+            gap: 3,
+            p: 3,
           }}
         >
-          <Typography variant="h6" component="h2" mb={2}>
-            {editMode ? "Edit Blog" : "Add Blog"}
+          <Typography variant="h6" component="h2" textAlign="center">
+            {editMode ? "Edit Blog" : "Create Blog"}
           </Typography>
+
+          {/* Title Field */}
           <TextField
-            label="Title"
             name="title"
+            label="Title"
+            variant="outlined"
             fullWidth
             value={newBlog.title}
             onChange={handleChange}
             error={!!validationErrors.title}
             helperText={validationErrors.title}
-            sx={{ mb: 2 }}
           />
-          <Box sx={{ mb: 2 }}>
+
+          {/* Box for Editor */}
+          <Box
+            sx={{
+              height: 300,  // Fixed height for the editor Box
+              minHeight: 300,  // Prevent shrinking
+              overflowY: "auto", // Scroll if the content overflows
+              border: "1px solid #ccc",  // Optional: Border for visual clarity
+              borderRadius: 2,  // Optional: Rounded corners for Box
+              mb: 2, // Bottom margin
+            }}
+          >
             <Editor
               apiKey="e9k37zmak3axn7rdzie5egp1k8hn9f943e71mz093ueusvyn"
-              
-              initialValue={newBlog.content}
               init={{
-                menubar: true,
-                plugins: [
-                  'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                  'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                  'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
-                ], 
-                toolbar: 'undo redo | blocks | ' +
-                  'bold italic forecolor | alignleft aligncenter ' +
-                  'alignright alignjustify | bullist numlist outdent indent | ' +
-                  'removeformat | help',
-                 code_toolbar: "code",
-                readonly: false,
+                height: 300,
+                menubar: false,
+                plugins: "link image code",
+                toolbar: "undo redo | formatselect | bold italic | link image | code",
               }}
-              onEditorChange={(newContent) => {
-                setNewBlog({ ...newBlog, content: newContent });
-              }}
+              value={newBlog.content}
+              onEditorChange={(content) =>
+                setNewBlog({ ...newBlog, content })
+              }
             />
-            {validationErrors.content && (
-              <Typography color="error" variant="caption">
-                {validationErrors.content}
-              </Typography>
-            )}
           </Box>
+
+          {validationErrors.content && (
+            <Typography color="error" variant="caption">
+              {validationErrors.content}
+            </Typography>
+          )}
+
+          {/* Author Field */}
           <TextField
-            label="Author"
             name="author"
+            label="Author"
+            variant="outlined"
             fullWidth
             value={newBlog.author}
             onChange={handleChange}
             error={!!validationErrors.author}
             helperText={validationErrors.author}
-            sx={{ mb: 2 }}
           />
-          <TextField
-            label="Tags"
-            name="tags"
-            fullWidth
-            value={newBlog.tags}
-            onChange={handleChange}
-            error={!!validationErrors.tags}
-            helperText={validationErrors.tags}
-            sx={{ mb: 2 }}
-          />
-          <Box sx={{ mb: 2 }}>
-            <Button variant="contained" component="label">
+
+          {/* Image Upload */}
+          <Box>
+            <Typography variant="body2" gutterBottom>
               Upload Image
+            </Typography>
+            <Button
+              variant="contained"
+              component="label"
+              sx={{ mb: 1 }}
+            >
+              Choose File
               <input
                 type="file"
-                hidden
                 accept="image/*"
+                hidden
                 onChange={handleImageUpload}
               />
             </Button>
-            {validationErrors.image && (
-              <Typography color="error" variant="caption">
-                {validationErrors.image}
-              </Typography>
-            )}
             {preview && (
-              <Box
-                sx={{
-                  mt: 2,
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
+              <img
+                src={preview}
+                alt="Preview"
+                style={{
+                  marginTop: 10,
+                  width: 150,
+                  height: 150,
+                  borderRadius: "8px",
+                  objectFit: "cover",
+                  display: "block",
                 }}
-              >
-                <img
-                  src={preview}
-                  alt="Preview"
-                  style={{
-                    maxHeight: "150px",
-                    maxWidth: "100%",
-                    borderRadius: "8px",
-                  }}
-                />
-              </Box>
+              />
             )}
           </Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              mt: 2,
-            }}
+          {validationErrors.image && (
+            <Typography color="error" variant="caption">
+              {validationErrors.image}
+            </Typography>
+          )}
+
+          {/* Submit Button */}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+            sx={{ alignSelf: "center", width: { xs: "100%", sm: "auto" } }}
           >
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
-              {editMode ? "Update Blog" : "Add Blog"}
-            </Button>
-          </Box>
+            {editMode ? "Update Blog" : "Create Blog"}
+          </Button>
         </Box>
       </Modal>
+
+
 
     </Box>
   );
