@@ -7,7 +7,7 @@ import Layout from "./components/Layout/Layout";
 import Login from "./components/Login/Login";
 import Dashboard from "./components/Dashboard/Dashboard";
 import Blogs from "./components/Blogs/Blogs";
-import Menu from "./components/Menu/Menu";
+import Page from "./components/Page/Page";
 import Forms from "./components/Forms/Forms";
 import CMS from "./components/cms/Cms";
 
@@ -45,7 +45,7 @@ const App = () => {
             >
               <Route index element={<Dashboard />} />
               <Route path="blogs" element={<Blogs />} />
-              <Route path="menu" element={<Menu />} />
+              <Route path="page" element={<Page />} />
               <Route path="cms" element={<CMS />} />
               <Route path="forms" element={<Forms />} />
             </Route>

@@ -71,10 +71,10 @@ const EditMenuModal = ({ open, menu, onClose, onSave, onInputChange }) => {
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Edit Menu</DialogTitle>
+      <DialogTitle>Edit Page</DialogTitle>
       <DialogContent>
         <TextField
-          label="Menu Name"
+          label="Page Name"
           value={menu.name || ""}
           onChange={(e) => onInputChange("name", e.target.value)}
           fullWidth
@@ -83,7 +83,7 @@ const EditMenuModal = ({ open, menu, onClose, onSave, onInputChange }) => {
           helperText={errors.name}
         />
         <TextField
-          label="Slug"
+          label="Page Slug"
           value={menu.link || ""}
           onChange={(e) => onInputChange("link", e.target.value)}
           fullWidth

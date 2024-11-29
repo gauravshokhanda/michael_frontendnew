@@ -23,8 +23,10 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
     name: "",
     link: "",
     sortOrder: "",
+    meta_data: "",
+    content: "",
   });
-  const [errors, setErrors] = useState({ name: "", link: "", sortOrder: "" });
+  const [errors, setErrors] = useState({ name: "", link: "", sortOrder: "", meta_data: "", content: "" });
   const [usedSortOrders, setUsedSortOrders] = useState([]);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [newLimit, setNewLimit] = useState(maxSortOrder);
@@ -45,7 +47,7 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
 
   const validate = () => {
     let valid = true;
-    const newErrors = { name: "", link: "", sortOrder: "" };
+    const newErrors = { name: "", link: "", sortOrder: "", meta_data: "", content: "" };
 
     if (!menuData.name.trim()) {
       newErrors.name = "Menu name is required";
@@ -66,6 +68,16 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
       valid = false;
     }
 
+    if (!menuData.meta_data.trim()) {
+      newErrors.meta_data = "Meta Data is required";
+      valid = false;
+    }
+
+    if (!menuData.content.trim()) {
+      newErrors.content = "Content is required";
+      valid = false;
+    }
+
     setErrors(newErrors);
     return valid;
   };
@@ -76,10 +88,11 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
   };
 
   const handleSave = () => {
+    console.log("handleSave data",menuData)
     if (validate()) {
       onSave(menuData);
-      setMenuData({ name: "", link: "", sortOrder: "" }); // Reset form
-      setErrors({ name: "", link: "", sortOrder: "" }); // Reset errors
+      setMenuData({ name: "", link: "", sortOrder: "", meta_data: "", content: "" }); // Reset form
+      setErrors({ name: "", link: "", sortOrder: "", meta_data: "", content: "" }); // Reset errors
     }
   };
 
@@ -122,26 +135,48 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
         }}
       >
         <Typography variant="h6" mb={2} color="primary">
-          Add New Menu
+          Add New page
         </Typography>
         <TextField
           fullWidth
-          label="Menu Name"
+          label="Page Name"
           value={menuData.name}
           onChange={(e) => handleInputChange("name", e.target.value)}
           margin="normal"
           error={Boolean(errors.name)}
           helperText={errors.name}
         />
+
         <TextField
           fullWidth
-          label="Slug"
+          label="Meta Data"
+          value={menuData.meta_data}
+          onChange={(e) => handleInputChange("meta_data", e.target.value)}
+          margin="normal"
+          error={Boolean(errors.meta_data)}
+          helperText={errors.meta_data}
+        />
+
+        <TextField
+          fullWidth
+          label="Content"
+          value={menuData.content}
+          onChange={(e) => handleInputChange("content", e.target.value)}
+          margin="normal"
+          error={Boolean(errors.content)}
+          helperText={errors.content}
+        />
+
+        <TextField
+          fullWidth
+          label="Page Slug"
           value={menuData.link}
           onChange={(e) => handleInputChange("link", e.target.value)}
           margin="normal"
           error={Boolean(errors.link)}
           helperText={errors.link}
         />
+
         <FormControl
           fullWidth
           margin="normal"
@@ -175,6 +210,7 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
             </IconButton>
           </Box>
         </FormControl>
+
         <Box mt={2} display="flex" justifyContent="flex-end">
           <Button onClick={onClose} color="secondary" sx={{ mr: 1 }}>
             Cancel
@@ -183,6 +219,7 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
             Save
           </Button>
         </Box>
+
         <Modal open={openEditModal} onClose={handleCloseEditModal}>
           <Box
             sx={{
