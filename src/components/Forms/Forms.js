@@ -30,8 +30,10 @@ const Forms = () => {
   const [newContact, setNewContact] = useState({
     name: "",
     email: "",
-    phone: "",
+    number: "",
+    subject: "",  // Added subject field
     message: "",
+    resolved: false,
   });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteContactId, setDeleteContactId] = useState(null);
@@ -47,8 +49,8 @@ const Forms = () => {
         id: contact._id,
         name: contact.name || "Unknown",
         email: contact.email || "No email",
-        phone: contact.number || "No phone", // Adjusted to match the API field "number"
-        subject: contact.subject || "No subject",
+        number: contact.number || "No number",
+        subject: contact.subject || "No subject",  // Adjusted for subject
         message: contact.message || "No message",
         resolved: contact.resolved ? "Yes" : "No",
       }));
@@ -74,8 +76,10 @@ const Forms = () => {
       setNewContact({
         name: contact.name,
         email: contact.email,
-        phone: contact.phone,
+        number: contact.number,
+        subject: contact.subject,  // Set subject for editing
         message: contact.message,
+        resolved: contact.resolved === "Yes",
       });
     } else {
       setEditMode(false);
@@ -83,8 +87,10 @@ const Forms = () => {
       setNewContact({
         name: "",
         email: "",
-        phone: "",
+        number: "",
+        subject: "",  // Reset subject for adding new
         message: "",
+        resolved: false,
       });
     }
   };
@@ -94,8 +100,10 @@ const Forms = () => {
     setNewContact({
       name: "",
       email: "",
-      phone: "",
+      number: "",
+      subject: "",  // Reset subject on close
       message: "",
+      resolved: false,
     });
     setEditMode(false);
   };
@@ -116,7 +124,8 @@ const Forms = () => {
     const errors = {};
     if (!newContact.name.trim()) errors.name = "Name is required.";
     if (!newContact.email.trim()) errors.email = "Email is required.";
-    if (!newContact.phone.trim()) errors.phone = "Phone number is required.";
+    if (!newContact.number.trim()) errors.number = "Number is required.";
+    if (!newContact.subject.trim()) errors.subject = "Subject is required.";  // Validation for subject
     if (!newContact.message.trim()) errors.message = "Message is required.";
 
     if (Object.keys(errors).length > 0) {
@@ -137,12 +146,11 @@ const Forms = () => {
           newContact,
           config
         );
-        fetchContacts();
       } else {
         await axios.post(`${baseURL}/contacts`, newContact, config);
-        fetchContacts();
       }
 
+      fetchContacts();
       handleClose();
     } catch (error) {
       console.error("Error submitting contact:", error.message);
@@ -178,7 +186,7 @@ const Forms = () => {
   const columns = [
     { field: "name", headerName: "Name", flex: 1, minWidth: 150 },
     { field: "email", headerName: "Email", flex: 1, minWidth: 200 },
-    { field: "phone", headerName: "Phone", flex: 1, minWidth: 150 },
+    { field: "number", headerName: "Number", flex: 1, minWidth: 150 },
     { field: "subject", headerName: "Subject", flex: 1, minWidth: 150 },
     { field: "message", headerName: "Message", flex: 1, minWidth: 250 },
     { field: "resolved", headerName: "Resolved", width: 100 },
@@ -301,13 +309,23 @@ const Forms = () => {
           />
           <TextField
             fullWidth
-            label="Phone"
-            name="phone"
-            value={newContact.phone}
+            label="Number"
+            name="number"
+            value={newContact.number}
             onChange={handleChange}
             margin="normal"
-            error={!!validationErrors.phone}
-            helperText={validationErrors.phone}
+            error={!!validationErrors.number}
+            helperText={validationErrors.number}
+          />
+          <TextField
+            fullWidth
+            label="Subject" // New subject field
+            name="subject"
+            value={newContact.subject}
+            onChange={handleChange}
+            margin="normal"
+            error={!!validationErrors.subject}
+            helperText={validationErrors.subject}
           />
           <TextField
             fullWidth
@@ -319,6 +337,22 @@ const Forms = () => {
             error={!!validationErrors.message}
             helperText={validationErrors.message}
           />
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body1" gutterBottom>
+              Resolved
+            </Typography>
+            <select
+              name="resolved"
+              value={newContact.resolved}
+              onChange={(e) =>
+                setNewContact({ ...newContact, resolved: e.target.value === "true" })
+              }
+              style={{ width: "100%", padding: "10px", borderRadius: "4px" }}
+            >
+              <option value="false">No</option>
+              <option value="true">Yes</option>
+            </select>
+          </Box>
           <Button
             fullWidth
             variant="contained"

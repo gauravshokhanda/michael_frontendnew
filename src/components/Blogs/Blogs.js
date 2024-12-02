@@ -19,25 +19,25 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { DataGrid } from "@mui/x-data-grid";
 import { useSelector } from "react-redux";
 import { baseURL } from "../../config/apiConfig";
+import { Editor } from "@tinymce/tinymce-react";
 
 const Blogs = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [open, setOpen] = useState(false); // Modal state
-  const [editMode, setEditMode] = useState(false); // Edit or Add mode
-  const [currentBlogId, setCurrentBlogId] = useState(null); // ID of blog being edited
+  const [open, setOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [currentBlogId, setCurrentBlogId] = useState(null);
   const [newBlog, setNewBlog] = useState({
     title: "",
     content: "",
     author: "",
-    tags: "",
     published: "Yes",
   });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteBlogId, setDeleteBlogId] = useState(null);
-  const [image, setImage] = useState(null); // Image file
-  const [preview, setPreview] = useState(null); // Image preview URL
+  const [image, setImage] = useState(null);
+  const [preview, setPreview] = useState(null);
   const token = useSelector((state) => state.auth.token);
   const [validationErrors, setValidationErrors] = useState({});
 
@@ -56,7 +56,7 @@ const Blogs = () => {
         title: blog.title || "Untitled",
         content: blog.content || "No content",
         author: blog.author || "Unknown",
-        tags: Array.isArray(blog.tags) ? blog.tags.join(", ") : "No tags",
+        image: blog.image || null, // Ensure to fetch image URL
         published: "Yes",
       }));
       setRows(blogs);
@@ -67,12 +67,11 @@ const Blogs = () => {
       setLoading(false);
     }
   };
-  // Fetch blogs from the API
+
   useEffect(() => {
     fetchBlogs();
   }, []);
 
-  // Handle modal open/close
   const handleOpen = (blog = null) => {
     setOpen(true);
     if (blog) {
@@ -82,10 +81,9 @@ const Blogs = () => {
         title: blog.title,
         content: blog.content,
         author: blog.author,
-        tags: blog.tags,
         published: "Yes",
       });
-      setPreview(null); // You can set an image preview here if the blog has an image URL
+      setPreview(blog.image || null);
     } else {
       setEditMode(false);
       setCurrentBlogId(null);
@@ -93,7 +91,6 @@ const Blogs = () => {
         title: "",
         content: "",
         author: "",
-        tags: "",
         published: "Yes",
       });
       setPreview(null);
@@ -106,7 +103,6 @@ const Blogs = () => {
       title: "",
       content: "",
       author: "",
-      tags: "",
       published: "Yes",
     });
     setImage(null);
@@ -114,7 +110,6 @@ const Blogs = () => {
     setEditMode(false);
   };
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNewBlog({ ...newBlog, [name]: value });
@@ -127,36 +122,29 @@ const Blogs = () => {
     }
   };
 
-  // Handle image upload
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     setImage(file);
-    setPreview(URL.createObjectURL(file)); // Generate preview URL
+    setPreview(URL.createObjectURL(file));
   };
 
-  // Handle blog submission (Add or Edit)
   const handleSubmit = async () => {
     const errors = {};
-
     if (!newBlog.title.trim()) errors.title = "Title is required.";
     if (!newBlog.content.trim()) errors.content = "Content is required.";
     if (!newBlog.author.trim()) errors.author = "Author is required.";
-    if (!newBlog.tags.trim()) errors.tags = "Tags are required.";
-    if (!image) errors.image = "Image is required.";
+    if (!image && !editMode) errors.image = "Image is required.";
 
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
       return;
     }
 
-    // Reset validation errors
     setValidationErrors({});
-
     const formData = new FormData();
     formData.append("title", newBlog.title);
     formData.append("content", newBlog.content);
     formData.append("author", newBlog.author);
-    formData.append("tags", newBlog.tags);
     formData.append("published", newBlog.published);
     if (image) {
       formData.append("image", image);
@@ -171,30 +159,18 @@ const Blogs = () => {
       };
 
       if (editMode) {
-        const response = await axios.put(
-          `${baseURL}/blogs/${currentBlogId}`,
-          formData,
-          config
-        );
-        console.log("Blog updated:", response.data);
-        fetchBlogs();
+        await axios.put(`${baseURL}/blogs/${currentBlogId}`, formData, config);
       } else {
-        const response = await axios.post(
-          `${baseURL}/blogs/`,
-          formData,
-          config
-        );
-        console.log("Blog added:", response.data);
-        fetchBlogs();
+        await axios.post(`${baseURL}/blogs/`, formData, config);
       }
 
+      fetchBlogs();
       handleClose();
     } catch (error) {
       console.error("Error submitting blog:", error.message);
     }
   };
 
-  // Handle blog delete
   const handleDelete = (id) => {
     setDeleteBlogId(id);
     setDeleteDialogOpen(true);
@@ -206,7 +182,6 @@ const Blogs = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRows((prevRows) => prevRows.filter((row) => row.id !== deleteBlogId));
-      console.log(`Blog with ID ${deleteBlogId} deleted.`);
     } catch (error) {
       console.error("Error deleting blog:", error.message);
     } finally {
@@ -219,18 +194,31 @@ const Blogs = () => {
     setDeleteDialogOpen(false);
     setDeleteBlogId(null);
   };
+
   const columns = [
-    { field: "title", headerName: "Title", flex: 1, minWidth: 120 },
-    { field: "content", headerName: "Content", flex: 1, minWidth: 250 },
-    { field: "author", headerName: "Author", flex: 1, minWidth: 150 },
-    { field: "tags", headerName: "Tags", flex: 1, minWidth: 150 },
+    { field: "title", headerName: "Title", flex: 1 },
+    { field: "content", headerName: "Content", flex: 2 },
+    { field: "author", headerName: "Author", flex: 1 },
+    {
+      field: "image",
+      headerName: "Image",
+      width: 150,
+      renderCell: (params) =>
+        params.row.image ? (
+          <img
+            src={params.row.image}
+            alt="Blog"
+            style={{ width: "100%", height: "auto", borderRadius: "8px" }}
+          />
+        ) : (
+          "No Image"
+        ),
+    },
     { field: "published", headerName: "Published", width: 120 },
     {
       field: "actions",
       headerName: "Actions",
-      flex: 1,
-      minWidth: 100,
-      sortable: false,
+      width: 150,
       renderCell: (params) => (
         <Box sx={{ display: "flex", gap: 1 }}>
           <IconButton color="primary" onClick={() => handleOpen(params.row)}>
@@ -261,9 +249,7 @@ const Blogs = () => {
   }
 
   return (
-    <Box
-      sx={{ width: "100%", maxWidth: "1000px", margin: "0 auto", padding: 3 }}
-    >
+    <Box sx={{ width: "100%", maxWidth: "1000px", margin: "0 auto", p: 3 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="h5">Blogs</Typography>
         <Button variant="contained" onClick={() => handleOpen()}>
@@ -276,36 +262,24 @@ const Blogs = () => {
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5]}
-          disableRowSelectionOnClick
         />
       </Box>
-
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={handleDeleteCancel}
-        aria-labelledby="delete-dialog-title"
-        aria-describedby="delete-dialog-description"
-      >
-        <DialogTitle id="delete-dialog-title">Confirm Delete</DialogTitle>
+      {/* Delete confirmation modal */}
+      <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
+        <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
-          <DialogContentText id="delete-dialog-description">
-            Are you sure you want to delete this blog? This action cannot be
-            undone.
+          <DialogContentText>
+            Are you sure you want to delete this blog? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDeleteCancel}>Cancel</Button>
-          <Button
-            onClick={handleDeleteConfirm}
-            color="error"
-            variant="contained"
-          >
+          <Button color="error" variant="contained" onClick={handleDeleteConfirm}>
             Delete
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* Add/Edit Blog Modal */}
+      {/* Blog creation/edit modal */}
       <Modal open={open} onClose={handleClose}>
         <Box
           sx={{
@@ -313,92 +287,131 @@ const Blogs = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 400,
+            width: { xs: "90vw", sm: "80vw", md: "50vw" },
+            maxHeight: "90vh",
+            overflowY: "auto", // Allows scrolling if content overflows
             bgcolor: "background.paper",
             boxShadow: 24,
-            p: 4,
             borderRadius: 2,
+            display: "flex",
+            flexDirection: "column",
+            gap: 3,
+            p: 3,
           }}
         >
-          <Typography variant="h6" mb={2}>
-            {editMode ? "Edit Blog" : "Add New Blog"}
+          <Typography variant="h6" component="h2" textAlign="center">
+            {editMode ? "Edit Blog" : "Create Blog"}
           </Typography>
+
+          {/* Title Field */}
           <TextField
-            fullWidth
-            label="Title"
             name="title"
+            label="Title"
+            variant="outlined"
+            fullWidth
             value={newBlog.title}
             onChange={handleChange}
-            margin="normal"
             error={!!validationErrors.title}
             helperText={validationErrors.title}
           />
+
+          {/* Box for Editor */}
+          <Box
+            sx={{
+              height: 300,  // Fixed height for the editor Box
+              minHeight: 300,  // Prevent shrinking
+              overflowY: "auto", // Scroll if the content overflows
+              border: "1px solid #ccc",  // Optional: Border for visual clarity
+              borderRadius: 2,  // Optional: Rounded corners for Box
+              mb: 2, // Bottom margin
+            }}
+          >
+            <Editor
+              apiKey="e9k37zmak3axn7rdzie5egp1k8hn9f943e71mz093ueusvyn"
+              init={{
+                height: 300,
+                menubar: false,
+                plugins: "link image code",
+                toolbar: "undo redo | formatselect | bold italic | link image | code",
+              }}
+              value={newBlog.content}
+              onEditorChange={(content) =>
+                setNewBlog({ ...newBlog, content })
+              }
+            />
+          </Box>
+
+          {validationErrors.content && (
+            <Typography color="error" variant="caption">
+              {validationErrors.content}
+            </Typography>
+          )}
+
+          {/* Author Field */}
           <TextField
-            fullWidth
-            label="Content"
-            name="content"
-            value={newBlog.content}
-            onChange={handleChange}
-            margin="normal"
-            error={!!validationErrors.content}
-            helperText={validationErrors.content}
-          />
-          <TextField
-            fullWidth
-            label="Author"
             name="author"
+            label="Author"
+            variant="outlined"
+            fullWidth
             value={newBlog.author}
             onChange={handleChange}
-            margin="normal"
             error={!!validationErrors.author}
             helperText={validationErrors.author}
           />
-          <TextField
-            fullWidth
-            label="Tags (comma-separated)"
-            name="tags"
-            value={newBlog.tags}
-            onChange={handleChange}
-            margin="normal"
-            error={!!validationErrors.tags}
-            helperText={validationErrors.tags}
-          />
-          <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
-            <Button variant="contained" component="label">
+
+          {/* Image Upload */}
+          <Box>
+            <Typography variant="body2" gutterBottom>
               Upload Image
+            </Typography>
+            <Button
+              variant="contained"
+              component="label"
+              sx={{ mb: 1 }}
+            >
+              Choose File
               <input
                 type="file"
-                hidden
                 accept="image/*"
+                hidden
                 onChange={handleImageUpload}
               />
             </Button>
             {preview && (
-              <Box
-                component="img"
+              <img
                 src={preview}
                 alt="Preview"
-                sx={{ width: 100, height: 100, ml: 2, borderRadius: 1 }}
+                style={{
+                  marginTop: 10,
+                  width: 150,
+                  height: 150,
+                  borderRadius: "8px",
+                  objectFit: "cover",
+                  display: "block",
+                }}
               />
             )}
           </Box>
           {validationErrors.image && (
-            <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+            <Typography color="error" variant="caption">
               {validationErrors.image}
             </Typography>
           )}
 
+          {/* Submit Button */}
           <Button
-            fullWidth
             variant="contained"
             color="primary"
-            sx={{ mt: 3 }}
             onClick={handleSubmit}
+            sx={{ alignSelf: "center", width: { xs: "100%", sm: "auto" } }}
           >
-            {editMode ? "Update Blog" : "Submit"}
+            {editMode ? "Update Blog" : "Create Blog"}
           </Button>
         </Box>
       </Modal>
+
+
+
     </Box>
   );
 };
