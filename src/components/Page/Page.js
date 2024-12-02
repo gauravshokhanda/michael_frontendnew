@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
 import Card from "@mui/material/Card";
@@ -18,7 +18,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { useSelector } from "react-redux";
 import { baseURL } from "../../config/apiConfig.js";
 
-const MenuTable = ({ refreshTable }) => {
+const Page = ({ refreshTable }) => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -30,10 +30,13 @@ const MenuTable = ({ refreshTable }) => {
     name: "",
     link: "",
     sortOrder: "",
+    meta_data: "",
+    content: "",
   });
   const token = useSelector((state) => state.auth.token);
 
-  const fetchMenus = () => {
+  // Memoize fetchMenus to avoid unnecessary re-renders
+  const fetchMenus = useCallback(() => {
     setLoading(true);
     axios
       .get(`${baseURL}/menus/`, {
@@ -50,6 +53,8 @@ const MenuTable = ({ refreshTable }) => {
           name: menu.name,
           link: menu.link,
           sortOrder: menu.sortOrder,
+          meta_data: menu.meta_data,
+          content: menu.content,
         }));
 
         setRows(newRows);
@@ -59,20 +64,21 @@ const MenuTable = ({ refreshTable }) => {
         console.error("Error fetching data:", error);
         setLoading(false);
       });
-  };
+  }, [token]); // Only re-create fetchMenus if token changes
+
+  useEffect(() => {
+    fetchMenus();
+  }, [refreshTable, fetchMenus]); // Add fetchMenus as a dependency
 
   const handleDelete = () => {
     axios
-      .delete(`${baseURL}menus/${menuToDelete}`, {
+      .delete(`${baseURL}/menus/${menuToDelete}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then(() => {
-        setRows((prevRows) =>
-          prevRows.filter((row) => row.id !== menuToDelete)
-        );
-        console.log("Menu deleted successfully.");
+        setRows((prevRows) => prevRows.filter((row) => row.id !== menuToDelete));
         setDeleteDialogOpen(false);
       })
       .catch((error) => {
@@ -99,6 +105,8 @@ const MenuTable = ({ refreshTable }) => {
           name: currentMenu.name,
           link: currentMenu.link,
           sortOrder: currentMenu.sortOrder,
+          meta_data: currentMenu.meta_data,
+          content: currentMenu.content,
         },
         {
           headers: {
@@ -110,12 +118,7 @@ const MenuTable = ({ refreshTable }) => {
         setRows((prevRows) =>
           prevRows.map((row) =>
             row.id === currentMenu.id
-              ? {
-                  ...row,
-                  name: currentMenu.name,
-                  link: currentMenu.link,
-                  sortOrder: currentMenu.sortOrder,
-                }
+              ? { ...row, ...currentMenu }
               : row
           )
         );
@@ -138,6 +141,8 @@ const MenuTable = ({ refreshTable }) => {
           name: menuData.name,
           link: menuData.link,
           sortOrder: menuData.sortOrder,
+          meta_data: menuData.meta_data,
+          content: menuData.content,
         },
         {
           headers: {
@@ -155,6 +160,8 @@ const MenuTable = ({ refreshTable }) => {
             name: newMenu.name,
             link: newMenu.link,
             sortOrder: newMenu.sortOrder,
+            meta_data: newMenu.meta_data,
+            content: newMenu.content,
           },
         ]);
         setAddModalOpen(false);
@@ -163,11 +170,6 @@ const MenuTable = ({ refreshTable }) => {
         console.error("Error adding menu:", error);
       });
   };
-
-  useEffect(() => {
-    fetchMenus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshTable]);
 
   if (loading) {
     return (
@@ -181,8 +183,7 @@ const MenuTable = ({ refreshTable }) => {
     <>
       <Grid
         item
-        xs={11}
-        lg={11}
+        xs={12}
         sx={{
           display: "flex",
           justifyContent: "flex-end",
@@ -190,7 +191,7 @@ const MenuTable = ({ refreshTable }) => {
         }}
       >
         <Button variant="contained" onClick={() => setAddModalOpen(true)}>
-          Add Menu
+          Add Page
         </Button>
       </Grid>
       <Card>
@@ -201,26 +202,49 @@ const MenuTable = ({ refreshTable }) => {
               field: "serialNumber",
               headerName: "S.No",
               flex: 0.1,
-              minWidth: 100,
+              minWidth: 80,
+              sortable: false,
             },
             {
               field: "name",
-              headerName: "Menu Name",
+              headerName: "Page Name",
               flex: 0.3,
-              minWidth: 200,
+              minWidth: 150,
+              sortable: true,
             },
-            { field: "link", headerName: "Slug", flex: 0.3, minWidth: 200 },
+            {
+              field: "content",
+              headerName: "Content",
+              flex: 0.3,
+              minWidth: 150,
+              sortable: true,
+            },
+            {
+              field: "meta_data",
+              headerName: "Meta Data",
+              flex: 0.3,
+              minWidth: 150,
+              sortable: true,
+            },
+            {
+              field: "link",
+              headerName: "Page Slug",
+              flex: 0.3,
+              minWidth: 150,
+              sortable: true,
+            },
             {
               field: "sortOrder",
               headerName: "Sort Order",
               flex: 0.2,
-              minWidth: 150,
+              minWidth: 100,
+              sortable: true,
             },
             {
               field: "Action",
               headerName: "Action",
               flex: 0.3,
-              minWidth: 200,
+              minWidth: 150,
               renderCell: ({ row }) => (
                 <>
                   <IconButton
@@ -241,7 +265,9 @@ const MenuTable = ({ refreshTable }) => {
             },
           ]}
           autoHeight
-          hideFooter
+          pageSize={5}  // Pagination settings
+          rowsPerPageOptions={[5, 10, 25]}  // Allow users to choose rows per page
+          pagination  // Enable pagination
           disableSelectionOnClick
         />
       </Card>
@@ -263,14 +289,11 @@ const MenuTable = ({ refreshTable }) => {
       />
 
       {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
-        <DialogTitle>Delete Menu</DialogTitle>
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>Delete Page</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this menu
+            Are you sure you want to delete this page?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -286,4 +309,4 @@ const MenuTable = ({ refreshTable }) => {
   );
 };
 
-export default MenuTable;
+export default Page;

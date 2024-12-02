@@ -16,6 +16,8 @@ import Logo from "./LogoBlack.png";
 import LogoutIcon from "@mui/icons-material/Logout";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ArticleIcon from "@mui/icons-material/Article";
+import SettingsIcon from "@mui/icons-material/Settings";
+
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import FormatAlignJustifyIcon from "@mui/icons-material/FormatAlignJustify";
 import { useDispatch } from "react-redux";
@@ -31,9 +33,9 @@ const Layout = () => {
   const menuItems = [
     { text: "Dashboard", path: "/", icon: <DashboardIcon /> },
     { text: "Blogs", path: "/blogs", icon: <ArticleIcon /> },
-    { text: "Menu", path: "/menu", icon: <MenuBookIcon /> },
+    { text: "Page", path: "/page", icon: <MenuBookIcon /> },
     { text: "Forms", path: "/forms", icon: <FormatAlignJustifyIcon /> },
-    { text: "CMS", path: "/cms", icon: <FormatAlignJustifyIcon /> },
+    { text: "GeneralSetting", path: "/GeneralSetting", icon: <SettingsIcon /> },
   ];
 
   // Toggle sidebar
