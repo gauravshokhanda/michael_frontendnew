@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
 import Card from "@mui/material/Card";
@@ -35,7 +35,8 @@ const Page = ({ refreshTable }) => {
   });
   const token = useSelector((state) => state.auth.token);
 
-  const fetchMenus = () => {
+  // Memoize fetchMenus to avoid unnecessary re-renders
+  const fetchMenus = useCallback(() => {
     setLoading(true);
     axios
       .get(`${baseURL}/menus/`, {
@@ -63,7 +64,11 @@ const Page = ({ refreshTable }) => {
         console.error("Error fetching data:", error);
         setLoading(false);
       });
-  };
+  }, [token]); // Only re-create fetchMenus if token changes
+
+  useEffect(() => {
+    fetchMenus();
+  }, [refreshTable, fetchMenus]); // Add fetchMenus as a dependency
 
   const handleDelete = () => {
     axios
@@ -129,8 +134,6 @@ const Page = ({ refreshTable }) => {
   };
 
   const handleAddSave = (menuData) => {
-    console.log("menuData.meta_data:", menuData.meta_data); 
-    console.log("menuData.content:", menuData.content); 
     axios
       .post(
         `${baseURL}/menus/`,
@@ -148,9 +151,7 @@ const Page = ({ refreshTable }) => {
         }
       )
       .then((response) => {
-
         const newMenu = response.data;
-        console.log("response:", newMenu)
         setRows((prevRows) => [
           ...prevRows,
           {
@@ -169,11 +170,6 @@ const Page = ({ refreshTable }) => {
         console.error("Error adding menu:", error);
       });
   };
-
-
-  useEffect(() => {
-    fetchMenus();
-  }, [refreshTable]);
 
   if (loading) {
     return (
@@ -207,32 +203,42 @@ const Page = ({ refreshTable }) => {
               headerName: "S.No",
               flex: 0.1,
               minWidth: 80,
+              sortable: false,
             },
             {
               field: "name",
               headerName: "Page Name",
               flex: 0.3,
               minWidth: 150,
+              sortable: true,
             },
-
             {
               field: "content",
               headerName: "Content",
               flex: 0.3,
               minWidth: 150,
+              sortable: true,
             },
             {
               field: "meta_data",
               headerName: "Meta Data",
               flex: 0.3,
               minWidth: 150,
+              sortable: true,
             },
-            { field: "link", headerName: "Page Slug", flex: 0.3, minWidth: 150 },
+            {
+              field: "link",
+              headerName: "Page Slug",
+              flex: 0.3,
+              minWidth: 150,
+              sortable: true,
+            },
             {
               field: "sortOrder",
               headerName: "Sort Order",
               flex: 0.2,
               minWidth: 100,
+              sortable: true,
             },
             {
               field: "Action",
@@ -259,7 +265,9 @@ const Page = ({ refreshTable }) => {
             },
           ]}
           autoHeight
-          hideFooter
+          pageSize={5}  // Pagination settings
+          rowsPerPageOptions={[5, 10, 25]}  // Allow users to choose rows per page
+          pagination  // Enable pagination
           disableSelectionOnClick
         />
       </Card>
@@ -281,10 +289,7 @@ const Page = ({ refreshTable }) => {
       />
 
       {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
         <DialogTitle>Delete Page</DialogTitle>
         <DialogContent>
           <DialogContentText>
