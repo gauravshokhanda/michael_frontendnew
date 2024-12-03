@@ -17,6 +17,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ArticleIcon from "@mui/icons-material/Article";
 import SettingsIcon from "@mui/icons-material/Settings";
+import PersonIcon from '@mui/icons-material/Person';
 
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import FormatAlignJustifyIcon from "@mui/icons-material/FormatAlignJustify";
@@ -34,7 +35,7 @@ const Layout = () => {
     { text: "Dashboard", path: "/", icon: <DashboardIcon /> },
     { text: "Blogs", path: "/blogs", icon: <ArticleIcon /> },
     { text: "Page", path: "/page", icon: <MenuBookIcon /> },
-    { text: "Client", path: "/client", icon: <ArticleIcon /> },
+    { text: "Client", path: "/client", icon: <PersonIcon /> },
     { text: "Forms", path: "/forms", icon: <FormatAlignJustifyIcon /> },
     { text: "GeneralSetting", path: "/GeneralSetting", icon: <SettingsIcon /> },
   ];
