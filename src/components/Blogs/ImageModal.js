@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Modal, Box, Button, Typography, TextField, CircularProgress, Alert, AlertTitle, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { baseURL } from "../../config/apiConfig";
 
 const ImageModal = ({ open, onClose }) => {
     const [imageData, setImageData] = useState([]);
     const [formData, setFormData] = useState({ title: '', file: null });
     const [editingImageId, setEditingImageId] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
     const [alertSeverity, setAlertSeverity] = useState('info');
 
@@ -21,10 +21,11 @@ const ImageModal = ({ open, onClose }) => {
     const fetchImages = async () => {
         try {
             setLoading(true);
-            const response = await axios.get('http://localhost:5000/api/featureimages');
+            const response = await axios.get(`${baseURL}/featureimages/`);
             setImageData(response.data.images || []);
         } catch (error) {
-            setError('Failed to fetch images. Please try again later.');
+            setAlertMessage('Failed to fetch images. Please try again later.');
+            setAlertSeverity('error');
         } finally {
             setLoading(false);
         }
@@ -41,7 +42,6 @@ const ImageModal = ({ open, onClose }) => {
     const resetForm = () => {
         setFormData({ title: '', file: null });
         setEditingImageId(null);
-        setError('');
         setAlertMessage('');
         onClose(); // Close the modal when resetting
     };
@@ -60,13 +60,13 @@ const ImageModal = ({ open, onClose }) => {
         try {
             setLoading(true);
             if (editingImageId) {
-                await axios.put(`http://localhost:5000/api/featureimages/${editingImageId}`, formPayload, {
+                await axios.put(`${baseURL}/featureimages/${editingImageId}`, formPayload, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 });
                 setAlertMessage('Image updated successfully!');
                 setAlertSeverity('success');
             } else {
-                const response = await axios.post('http://localhost:5000/api/featureimages', formPayload, {
+                const response = await axios.post(`${baseURL}/featureimages`, formPayload, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 });
                 setImageData((prev) => [...prev, response.data.image]);
@@ -86,14 +86,13 @@ const ImageModal = ({ open, onClose }) => {
     const handleEdit = (image) => {
         setFormData({ title: image.title, file: null });
         setEditingImageId(image._id);
-        setError('');
         setAlertMessage('');
     };
 
     const handleDelete = async (id) => {
         try {
             setLoading(true);
-            await axios.delete(`http://localhost:5000/api/featureimages/${id}`);
+            await axios.delete(`${baseURL}/featureimages/${id}`);
             setImageData((prev) => prev.filter((image) => image._id !== id));
             setAlertMessage('Image deleted successfully!');
             setAlertSeverity('success');
@@ -151,7 +150,7 @@ const ImageModal = ({ open, onClose }) => {
                             image && image.title ? (
                                 <Box key={image._id} sx={{ mb: 3, textAlign: 'center' }}>
                                     <img
-                                        src={`http://localhost:5000${image?.imageUrl || ''}`}
+                                        src={`${baseURL}${image?.imageUrl || ''}`}
                                         alt={image.title}
                                         style={{ maxWidth: '100%', height: 'auto', marginBottom: '10px' }}
                                     />
