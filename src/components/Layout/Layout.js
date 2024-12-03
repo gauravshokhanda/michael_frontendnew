@@ -34,6 +34,7 @@ const Layout = () => {
     { text: "Dashboard", path: "/", icon: <DashboardIcon /> },
     { text: "Blogs", path: "/blogs", icon: <ArticleIcon /> },
     { text: "Page", path: "/page", icon: <MenuBookIcon /> },
+    { text: "Client", path: "/client", icon: <ArticleIcon /> },
     { text: "Forms", path: "/forms", icon: <FormatAlignJustifyIcon /> },
     { text: "GeneralSetting", path: "/GeneralSetting", icon: <SettingsIcon /> },
   ];

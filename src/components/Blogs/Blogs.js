@@ -16,11 +16,10 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import ImageModal from './ImageModal';  // Assuming you have a modal for images
+import ImageModal from "./ImageModal"; // Assuming you have a modal for images
 import { DataGrid } from "@mui/x-data-grid";
 import { useSelector } from "react-redux";
 import { baseURL } from "../../config/apiConfig";
-import { Editor } from "@tinymce/tinymce-react";
 
 const Blogs = () => {
   const [rows, setRows] = useState([]);
@@ -263,17 +262,19 @@ const Blogs = () => {
     <Box sx={{ width: "100%", maxWidth: "1000px", margin: "0 auto", p: 3 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="h5">Blogs</Typography>
-        <Box sx={{ display: "flex", justifyContent: "end", gap:2}}>
-        <Button variant="contained" onClick={() => handleOpen()}>
-          Add Blog
-        </Button>
-        <Button variant="contained" onClick={handleOpenModal}>
-          Feature image
-        </Button>
+        <Box sx={{ display: "flex", justifyContent: "end", gap: 2 }}>
+          <Button variant="contained" onClick={() => handleOpen()}>
+            Add Blog
+          </Button>
+          <Button variant="contained" onClick={handleOpenModal}>
+            Feature image
+          </Button>
         </Box>
       </Box>
       {/* Modal Component */}
-      {isModalOpen && <ImageModal onClose={handleCloseModal} open={isModalOpen} />}
+      {isModalOpen && (
+        <ImageModal onClose={handleCloseModal} open={isModalOpen} />
+      )}
       <Box sx={{ height: 600 }}>
         <DataGrid
           rows={rows}
@@ -287,7 +288,9 @@ const Blogs = () => {
       {/* Dialog for Blog Edit */}
       <Modal open={open} onClose={handleClose}>
         <Box sx={{ p: 3, bgcolor: "white", maxWidth: 600, margin: "0 auto" }}>
-          <Typography variant="h6">{editMode ? "Edit Blog" : "Add Blog"}</Typography>
+          <Typography variant="h6">
+            {editMode ? "Edit Blog" : "Add Blog"}
+          </Typography>
           <TextField
             name="title"
             label="Title"

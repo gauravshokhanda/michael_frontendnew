@@ -14,7 +14,7 @@ const Dashboard = () => {
   const [stats, setStats] = useState({
     totalQueries: 0,
     totalBlogs: 0,
-    totalMenuItems: 0,
+    totalClients: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -26,17 +26,18 @@ const Dashboard = () => {
         const totalBlogs = blogsResponse.data.data.length;
 
         // Fetch menu (replace with your actual menu API)
-        // const menuResponse = await axios.get("http://localhost:5000/api/menu/");
-        // const totalMenuItems = menuResponse.data.data.length || 0;
+        const menuResponse = await axios.get(`${baseURL}/clients/`);
+        const totalClients = menuResponse.data.length || 0;
 
-        // // Fetch queries (replace with your actual queries API)
-        // const queriesResponse = await axios.get(
-        //   "http://localhost:5000/api/queries/"
-        // );
-        // const totalQueries = queriesResponse.data.data.length || 0;
+        // Fetch queries (replace with your actual queries API)
+        const queriesResponse = await axios.get(`${baseURL}/contacts/`);
+        console.log(queriesResponse.data);
+        const totalQueries = queriesResponse.data.length || 0;
 
         setStats({
           totalBlogs,
+          totalQueries,
+          totalClients,
         });
         console.log("Updated Stats:", stats);
       } catch (error) {
@@ -85,7 +86,7 @@ const Dashboard = () => {
                 Total Queries
               </Typography>
               <Typography variant="h2" sx={{ fontWeight: "bold" }}>
-                {stats.totalQueries} 0
+                {stats.totalQueries}
               </Typography>
             </CardContent>
           </Card>
@@ -122,10 +123,10 @@ const Dashboard = () => {
           >
             <CardContent>
               <Typography variant="h5" gutterBottom>
-                Total Menu Items
+                Clients
               </Typography>
               <Typography variant="h2" sx={{ fontWeight: "bold" }}>
-                {stats.totalMenuItems} 0
+                {stats.totalClients}
               </Typography>
             </CardContent>
           </Card>

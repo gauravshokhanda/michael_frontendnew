@@ -11,7 +11,7 @@ import Page from "./components/Page/Page";
 import Forms from "./components/Forms/Forms";
 import CMS from "./components/cms/Cms";
 import GeneralSetting from "./components/GeneralSetting/GeneralSetting";
-
+import Client from "./components/Client/client";
 
 // ProtectedRoute Component
 const ProtectedRoute = ({ children }) => {
@@ -50,8 +50,8 @@ const App = () => {
               <Route path="page" element={<Page />} />
               <Route path="cms" element={<CMS />} />
               <Route path="forms" element={<Forms />} />
+              <Route path="client" element={<Client />} />
               <Route path="generalSetting" element={<GeneralSetting />} />
-
             </Route>
           </Routes>
         </BrowserRouter>
