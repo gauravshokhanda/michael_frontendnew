@@ -17,6 +17,12 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ArticleIcon from "@mui/icons-material/Article";
 import SettingsIcon from "@mui/icons-material/Settings";
+<<<<<<< HEAD
+=======
+import PersonIcon from '@mui/icons-material/Person';
+
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+>>>>>>> 17fb242297dd30d97df1611cb3e05bd697e36f86
 import FormatAlignJustifyIcon from "@mui/icons-material/FormatAlignJustify";
 import { useDispatch } from "react-redux";
 import { setLogin } from "../../redux/slices/authSlice"; // Adjust according to your slice

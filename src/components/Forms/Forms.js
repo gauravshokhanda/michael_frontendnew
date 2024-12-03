@@ -190,6 +190,7 @@ const Forms = () => {
     { field: "subject", headerName: "Subject", flex: 1, minWidth: 150 },
     { field: "message", headerName: "Message", flex: 1, minWidth: 250 },
     { field: "resolved", headerName: "Resolved", width: 100 },
+
     {
       field: "actions",
       headerName: "Actions",
