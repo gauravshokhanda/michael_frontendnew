@@ -31,8 +31,9 @@ const Forms = () => {
     name: "",
     email: "",
     number: "",
-    subject: "", // Added subject field
+    inquires: "", // Added inquires field
     message: "",
+    findus: "",
     resolved: false,
   });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -50,9 +51,10 @@ const Forms = () => {
         name: contact.name || "Unknown",
         email: contact.email || "No email",
         number: contact.number || "No number",
-        subject: contact.subject || "No subject", // Adjusted for subject
+        inquires: contact.inquires || "No inquires", // Adjusted for inquires
         message: contact.message || "No message",
         resolved: contact.resolved ? "Yes" : "No",
+        findus: contact.find_us,
       }));
 
       setRows(contacts);
@@ -77,8 +79,9 @@ const Forms = () => {
         name: contact.name,
         email: contact.email,
         number: contact.number,
-        subject: contact.subject, // Set subject for editing
+        inquires: contact.inquires, // Set inquires for editing
         message: contact.message,
+        findus: contact.find_us,
         resolved: contact.resolved === "Yes",
       });
     } else {
@@ -88,8 +91,9 @@ const Forms = () => {
         name: "",
         email: "",
         number: "",
-        subject: "", // Reset subject for adding new
+        inquires: "", // Reset inquires for adding new
         message: "",
+        findus: "",
         resolved: false,
       });
     }
@@ -101,8 +105,9 @@ const Forms = () => {
       name: "",
       email: "",
       number: "",
-      subject: "", // Reset subject on close
+      inquires: "", // Reset inquires on close
       message: "",
+      findus: "",
       resolved: false,
     });
     setEditMode(false);
@@ -125,8 +130,9 @@ const Forms = () => {
     if (!newContact.name.trim()) errors.name = "Name is required.";
     if (!newContact.email.trim()) errors.email = "Email is required.";
     if (!newContact.number.trim()) errors.number = "Number is required.";
-    if (!newContact.subject.trim()) errors.subject = "Subject is required."; // Validation for subject
+    if (!newContact.inquires.trim()) errors.inquires = "Subject is required."; // Validation for inquires
     if (!newContact.message.trim()) errors.message = "Message is required.";
+    if (!newContact.findus.trim()) errors.findus = "Message is required.";
 
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
@@ -184,12 +190,12 @@ const Forms = () => {
   };
 
   const columns = [
-    { field: "name", headerName: "Name", flex: 1, minWidth: 150 },
+    { field: "name", headerName: "Name", flex: 1, minWidth: 100 },
     { field: "email", headerName: "Email", flex: 1, minWidth: 200 },
-    { field: "number", headerName: "Number", flex: 1, minWidth: 150 },
-    { field: "subject", headerName: "Subject", flex: 1, minWidth: 150 },
+    { field: "number", headerName: "Number", flex: 1, minWidth: 100 },
+    { field: "findus", headerName: "find us", flex: 1, minWidth: 150 },
     { field: "message", headerName: "Message", flex: 1, minWidth: 250 },
-    { field: "resolved", headerName: "Resolved", width: 100 },
+    // { field: "resolved", headerName: "Resolved", width: 100 },
 
     {
       field: "actions",
@@ -232,9 +238,9 @@ const Forms = () => {
     >
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="h5">Inquires</Typography>
-        <Button variant="contained" onClick={() => handleOpen()}>
+        {/* <Button variant="contained" onClick={() => handleOpen()}>
           Add Contact
-        </Button>
+        </Button> */}
       </Box>
       <Box sx={{ height: 600 }}>
         <DataGrid
@@ -320,13 +326,13 @@ const Forms = () => {
           />
           <TextField
             fullWidth
-            label="Subject" // New subject field
-            name="subject"
-            value={newContact.subject}
+            label="Subject" // New inquires field
+            name="inquires"
+            value={newContact.inquires}
             onChange={handleChange}
             margin="normal"
-            error={!!validationErrors.subject}
-            helperText={validationErrors.subject}
+            error={!!validationErrors.inquires}
+            helperText={validationErrors.inquires}
           />
           <TextField
             fullWidth
