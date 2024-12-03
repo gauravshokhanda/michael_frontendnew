@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import ImageModal from './ImageModal';  // Assuming you have a modal for images
 import { DataGrid } from "@mui/x-data-grid";
 import { useSelector } from "react-redux";
 import { baseURL } from "../../config/apiConfig";
@@ -40,6 +41,16 @@ const Blogs = () => {
   const [preview, setPreview] = useState(null);
   const token = useSelector((state) => state.auth.token);
   const [validationErrors, setValidationErrors] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    console.log("handle open modal");
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   const fetchBlogs = async () => {
     try {
@@ -56,7 +67,7 @@ const Blogs = () => {
         title: blog.title || "Untitled",
         content: blog.content || "No content",
         author: blog.author || "Unknown",
-        image: blog.image || null, // Ensure to fetch image URL
+        image: blog.image || null,
         published: "Yes",
       }));
       setRows(blogs);
@@ -252,166 +263,107 @@ const Blogs = () => {
     <Box sx={{ width: "100%", maxWidth: "1000px", margin: "0 auto", p: 3 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="h5">Blogs</Typography>
+        <Box sx={{ display: "flex", justifyContent: "end", gap:2}}>
         <Button variant="contained" onClick={() => handleOpen()}>
           Add Blog
         </Button>
+        <Button variant="contained" onClick={handleOpenModal}>
+          Feature image
+        </Button>
+        </Box>
       </Box>
+      {/* Modal Component */}
+      {isModalOpen && <ImageModal onClose={handleCloseModal} open={isModalOpen} />}
       <Box sx={{ height: 600 }}>
         <DataGrid
           rows={rows}
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5]}
+          checkboxSelection
         />
       </Box>
-      {/* Delete confirmation modal */}
-      <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this blog? This action cannot be undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDeleteCancel}>Cancel</Button>
-          <Button color="error" variant="contained" onClick={handleDeleteConfirm}>
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-      {/* Blog creation/edit modal */}
-      <Modal open={open} onClose={handleClose}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: { xs: "90vw", sm: "80vw", md: "50vw" },
-            maxHeight: "90vh",
-            overflowY: "auto", // Allows scrolling if content overflows
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            borderRadius: 2,
-            display: "flex",
-            flexDirection: "column",
-            gap: 3,
-            p: 3,
-          }}
-        >
-          <Typography variant="h6" component="h2" textAlign="center">
-            {editMode ? "Edit Blog" : "Create Blog"}
-          </Typography>
 
-          {/* Title Field */}
+      {/* Dialog for Blog Edit */}
+      <Modal open={open} onClose={handleClose}>
+        <Box sx={{ p: 3, bgcolor: "white", maxWidth: 600, margin: "0 auto" }}>
+          <Typography variant="h6">{editMode ? "Edit Blog" : "Add Blog"}</Typography>
           <TextField
             name="title"
             label="Title"
-            variant="outlined"
             fullWidth
+            margin="normal"
             value={newBlog.title}
             onChange={handleChange}
             error={!!validationErrors.title}
             helperText={validationErrors.title}
           />
-
-          {/* Box for Editor */}
-          <Box
-            sx={{
-              height: 300,  // Fixed height for the editor Box
-              minHeight: 300,  // Prevent shrinking
-              overflowY: "auto", // Scroll if the content overflows
-              border: "1px solid #ccc",  // Optional: Border for visual clarity
-              borderRadius: 2,  // Optional: Rounded corners for Box
-              mb: 2, // Bottom margin
-            }}
-          >
-            <Editor
-              apiKey="e9k37zmak3axn7rdzie5egp1k8hn9f943e71mz093ueusvyn"
-              init={{
-                height: 300,
-                menubar: false,
-                plugins: "link image code",
-                toolbar: "undo redo | formatselect | bold italic | link image | code",
-              }}
-              value={newBlog.content}
-              onEditorChange={(content) =>
-                setNewBlog({ ...newBlog, content })
-              }
-            />
-          </Box>
-
-          {validationErrors.content && (
-            <Typography color="error" variant="caption">
-              {validationErrors.content}
-            </Typography>
-          )}
-
-          {/* Author Field */}
+          <TextField
+            name="content"
+            label="Content"
+            fullWidth
+            margin="normal"
+            value={newBlog.content}
+            onChange={handleChange}
+            error={!!validationErrors.content}
+            helperText={validationErrors.content}
+            multiline
+            rows={4}
+          />
           <TextField
             name="author"
             label="Author"
-            variant="outlined"
             fullWidth
+            margin="normal"
             value={newBlog.author}
             onChange={handleChange}
             error={!!validationErrors.author}
             helperText={validationErrors.author}
           />
-
-          {/* Image Upload */}
-          <Box>
-            <Typography variant="body2" gutterBottom>
-              Upload Image
-            </Typography>
-            <Button
-              variant="contained"
-              component="label"
-              sx={{ mb: 1 }}
-            >
-              Choose File
-              <input
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={handleImageUpload}
-              />
-            </Button>
-            {preview && (
-              <img
-                src={preview}
-                alt="Preview"
-                style={{
-                  marginTop: 10,
-                  width: 150,
-                  height: 150,
-                  borderRadius: "8px",
-                  objectFit: "cover",
-                  display: "block",
-                }}
-              />
-            )}
-          </Box>
-          {validationErrors.image && (
-            <Typography color="error" variant="caption">
-              {validationErrors.image}
-            </Typography>
-          )}
-
-          {/* Submit Button */}
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSubmit}
-            sx={{ alignSelf: "center", width: { xs: "100%", sm: "auto" } }}
-          >
-            {editMode ? "Update Blog" : "Create Blog"}
+          <Button variant="contained" component="label" fullWidth>
+            Upload Image
+            <input
+              hidden
+              accept="image/*"
+              type="file"
+              onChange={handleImageUpload}
+            />
           </Button>
+          {preview && (
+            <img
+              src={preview}
+              alt="Preview"
+              style={{ width: "100%", height: "auto", marginTop: 20 }}
+            />
+          )}
+          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
+            <Button variant="outlined" onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button variant="contained" onClick={handleSubmit}>
+              {editMode ? "Update" : "Add"}
+            </Button>
+          </Box>
         </Box>
       </Modal>
 
-
-
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this blog?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteConfirm} color="error">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
