@@ -31,7 +31,7 @@ const Forms = () => {
     name: "",
     email: "",
     number: "",
-    subject: "",  // Added subject field
+    subject: "", // Added subject field
     message: "",
     resolved: false,
   });
@@ -50,7 +50,7 @@ const Forms = () => {
         name: contact.name || "Unknown",
         email: contact.email || "No email",
         number: contact.number || "No number",
-        subject: contact.subject || "No subject",  // Adjusted for subject
+        subject: contact.subject || "No subject", // Adjusted for subject
         message: contact.message || "No message",
         resolved: contact.resolved ? "Yes" : "No",
       }));
@@ -77,7 +77,7 @@ const Forms = () => {
         name: contact.name,
         email: contact.email,
         number: contact.number,
-        subject: contact.subject,  // Set subject for editing
+        subject: contact.subject, // Set subject for editing
         message: contact.message,
         resolved: contact.resolved === "Yes",
       });
@@ -88,7 +88,7 @@ const Forms = () => {
         name: "",
         email: "",
         number: "",
-        subject: "",  // Reset subject for adding new
+        subject: "", // Reset subject for adding new
         message: "",
         resolved: false,
       });
@@ -101,7 +101,7 @@ const Forms = () => {
       name: "",
       email: "",
       number: "",
-      subject: "",  // Reset subject on close
+      subject: "", // Reset subject on close
       message: "",
       resolved: false,
     });
@@ -125,7 +125,7 @@ const Forms = () => {
     if (!newContact.name.trim()) errors.name = "Name is required.";
     if (!newContact.email.trim()) errors.email = "Email is required.";
     if (!newContact.number.trim()) errors.number = "Number is required.";
-    if (!newContact.subject.trim()) errors.subject = "Subject is required.";  // Validation for subject
+    if (!newContact.subject.trim()) errors.subject = "Subject is required."; // Validation for subject
     if (!newContact.message.trim()) errors.message = "Message is required.";
 
     if (Object.keys(errors).length > 0) {
@@ -231,7 +231,7 @@ const Forms = () => {
       sx={{ width: "100%", maxWidth: "1000px", margin: "0 auto", padding: 3 }}
     >
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-        <Typography variant="h5">Forms</Typography>
+        <Typography variant="h5">Queries</Typography>
         <Button variant="contained" onClick={() => handleOpen()}>
           Add Contact
         </Button>
@@ -346,7 +346,10 @@ const Forms = () => {
               name="resolved"
               value={newContact.resolved}
               onChange={(e) =>
-                setNewContact({ ...newContact, resolved: e.target.value === "true" })
+                setNewContact({
+                  ...newContact,
+                  resolved: e.target.value === "true",
+                })
               }
               style={{ width: "100%", padding: "10px", borderRadius: "4px" }}
             >
