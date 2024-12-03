@@ -230,7 +230,7 @@ const Forms = () => {
       sx={{ width: "100%", maxWidth: "1000px", margin: "0 auto", padding: 3 }}
     >
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-        <Typography variant="h5">Queries</Typography>
+        <Typography variant="h5">Inquires</Typography>
         <Button variant="contained" onClick={() => handleOpen()}>
           Add Contact
         </Button>

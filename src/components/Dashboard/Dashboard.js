@@ -72,7 +72,7 @@ const Dashboard = () => {
         Dashboard
       </Typography>
       <Grid container spacing={3}>
-        {/* Total Queries Card */}
+        {/* Total Inquires Card */}
         <Grid item xs={12} sm={6} md={4}>
           <Card
             sx={{
@@ -83,7 +83,7 @@ const Dashboard = () => {
           >
             <CardContent>
               <Typography variant="h5" gutterBottom>
-                Total Queries
+                Total Inquires
               </Typography>
               <Typography variant="h2" sx={{ fontWeight: "bold" }}>
                 {stats.totalQueries}
@@ -123,7 +123,7 @@ const Dashboard = () => {
           >
             <CardContent>
               <Typography variant="h5" gutterBottom>
-                Clients
+                User
               </Typography>
               <Typography variant="h2" sx={{ fontWeight: "bold" }}>
                 {stats.totalClients}

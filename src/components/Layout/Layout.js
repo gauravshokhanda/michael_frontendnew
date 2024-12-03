@@ -17,8 +17,6 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ArticleIcon from "@mui/icons-material/Article";
 import SettingsIcon from "@mui/icons-material/Settings";
-
-import MenuBookIcon from "@mui/icons-material/MenuBook";
 import FormatAlignJustifyIcon from "@mui/icons-material/FormatAlignJustify";
 import { useDispatch } from "react-redux";
 import { setLogin } from "../../redux/slices/authSlice"; // Adjust according to your slice
@@ -33,9 +31,9 @@ const Layout = () => {
   const menuItems = [
     { text: "Dashboard", path: "/", icon: <DashboardIcon /> },
     { text: "Blogs", path: "/blogs", icon: <ArticleIcon /> },
-    { text: "Page", path: "/page", icon: <MenuBookIcon /> },
-    { text: "Client", path: "/client", icon: <ArticleIcon /> },
-    { text: "Queries", path: "/forms", icon: <FormatAlignJustifyIcon /> },
+    // { text: "Page", path: "/page", icon: <MenuBookIcon /> },
+    { text: "Users", path: "/client", icon: <ArticleIcon /> },
+    { text: "Inquires", path: "/forms", icon: <FormatAlignJustifyIcon /> },
     { text: "GeneralSetting", path: "/GeneralSetting", icon: <SettingsIcon /> },
   ];
 
