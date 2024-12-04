@@ -34,7 +34,7 @@ const Client = () => {
       const contacts = response.data.map((contact) => ({
         id: contact._id,
         name: contact.firstName || "Unknown",
-        lastname: contact.lastname || "Unknown",
+        lastname: contact.lastName || "Unknown",
         email: contact.email || "No email",
         number: contact.phoneNumber || "No number",
       }));
