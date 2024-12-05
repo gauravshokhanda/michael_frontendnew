@@ -26,7 +26,7 @@ const Forms = () => {
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [currentContactId, setCurrentContactId] = useState(null);
+  // const [currentContactId, setCurrentContactId] = useState(null);
   const [newContact, setNewContact] = useState({
     name: "",
     email: "",
@@ -74,7 +74,7 @@ const Forms = () => {
     setOpen(true);
     if (contact) {
       setEditMode(true);
-      setCurrentContactId(contact.id);
+      // setCurrentContactId(contact.id);
       setNewContact({
         name: contact.name,
         email: contact.email,
@@ -86,7 +86,7 @@ const Forms = () => {
       });
     } else {
       setEditMode(false);
-      setCurrentContactId(null);
+      // setCurrentContactId(null);
       setNewContact({
         name: "",
         email: "",
@@ -125,43 +125,43 @@ const Forms = () => {
     }
   };
 
-  const handleSubmit = async () => {
-    const errors = {};
-    if (!newContact.name.trim()) errors.name = "Name is required.";
-    if (!newContact.email.trim()) errors.email = "Email is required.";
-    if (!newContact.number.trim()) errors.number = "Number is required.";
-    if (!newContact.inquires.trim()) errors.inquires = "Subject is required."; // Validation for inquires
-    if (!newContact.message.trim()) errors.message = "Message is required.";
-    if (!newContact.findus.trim()) errors.findus = "Message is required.";
+  // const handleSubmit = async () => {
+  //   const errors = {};
+  //   if (!newContact.name.trim()) errors.name = "Name is required.";
+  //   if (!newContact.email.trim()) errors.email = "Email is required.";
+  //   if (!newContact.number.trim()) errors.number = "Number is required.";
+  //   if (!newContact.inquires.trim()) errors.inquires = "Subject is required."; // Validation for inquires
+  //   if (!newContact.message.trim()) errors.message = "Message is required.";
+  //   if (!newContact.findus.trim()) errors.findus = "Message is required.";
 
-    if (Object.keys(errors).length > 0) {
-      setValidationErrors(errors);
-      return;
-    }
+  //   if (Object.keys(errors).length > 0) {
+  //     setValidationErrors(errors);
+  //     return;
+  //   }
 
-    setValidationErrors({});
+  //   setValidationErrors({});
 
-    try {
-      const config = {
-        headers: { Authorization: `Bearer ${token}` },
-      };
+  //   try {
+  //     const config = {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     };
 
-      if (editMode) {
-        await axios.put(
-          `${baseURL}/contacts/${currentContactId}`,
-          newContact,
-          config
-        );
-      } else {
-        await axios.post(`${baseURL}/contacts`, newContact, config);
-      }
+  //     if (editMode) {
+  //       await axios.put(
+  //         `${baseURL}/contacts/${currentContactId}`,
+  //         newContact,
+  //         config
+  //       );
+  //     } else {
+  //       await axios.post(`${baseURL}/contacts`, newContact, config);
+  //     }
 
-      fetchContacts();
-      handleClose();
-    } catch (error) {
-      console.error("Error submitting contact:", error.message);
-    }
-  };
+  //     fetchContacts();
+  //     handleClose();
+  //   } catch (error) {
+  //     console.error("Error submitting contact:", error.message);
+  //   }
+  // };
 
   const handleDelete = (id) => {
     setDeleteContactId(id);
@@ -368,7 +368,7 @@ const Forms = () => {
             variant="contained"
             color="primary"
             sx={{ mt: 3 }}
-            onClick={handleSubmit}
+            // onClick={handleSubmit}
           >
             {editMode ? "Update Contact" : "Submit"}
           </Button>
