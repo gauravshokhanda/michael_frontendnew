@@ -29,12 +29,11 @@ const Client = () => {
   const fetchContacts = async () => {
     try {
       const response = await axios.get(`${baseURL}/clients`);
-      console.log("Fetched Data:", response.data);
 
       const contacts = response.data.map((contact) => ({
         id: contact._id,
         name: contact.firstName || "Unknown",
-        lastname: contact.lastname || "Unknown",
+        lastname: contact.lastName || "Unknown",
         email: contact.email || "No email",
         number: contact.phoneNumber || "No number",
       }));
@@ -79,10 +78,10 @@ const Client = () => {
   };
 
   const columns = [
-    { field: "name", headerName: "Name", flex: 1, minWidth: 150 },
+    { field: "name", headerName: "First Name", flex: 1, minWidth: 150 },
+    { field: "lastname", headerName: "Last Name", flex: 1, minWidth: 150 },
     { field: "email", headerName: "Email", flex: 1, minWidth: 200 },
     { field: "number", headerName: "Number", flex: 1, minWidth: 150 },
-    { field: "lastname", headerName: "lastname", flex: 1, minWidth: 150 },
 
     {
       field: "actions",

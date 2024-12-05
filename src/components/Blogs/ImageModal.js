@@ -150,7 +150,7 @@ const ImageModal = ({ open, onClose }) => {
                             image && image.title ? (
                                 <Box key={image._id} sx={{ mb: 3, textAlign: 'center' }}>
                                     <img
-                                        src={`${baseURL}${image?.imageUrl || ''}`}
+                                        src={`https://associatedincometax.iamdeveloper.in${image?.imageUrl || ''}`}
                                         alt={image.title}
                                         style={{ maxWidth: '100%', height: 'auto', marginBottom: '10px' }}
                                     />

@@ -43,7 +43,6 @@ const Forms = () => {
   const fetchSettings = async () => {
     try {
       const response = await axios.get(`${baseURL}/settings`);
-      console.log("Fetched Data:", response.data);
 
       const settings = response.data.map((setting) => ({
         id: setting._id,
