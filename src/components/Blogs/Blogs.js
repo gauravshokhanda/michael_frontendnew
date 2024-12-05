@@ -43,7 +43,6 @@ const Blogs = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => {
-    console.log("handle open modal");
     setIsModalOpen(true);
   };
 
@@ -362,7 +361,7 @@ const Blogs = () => {
           <Button onClick={handleDeleteCancel} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleDeleteConfirm} color="error">
+          <Button variant="contained" onClick={handleDeleteConfirm} color="error">
             Delete
           </Button>
         </DialogActions>

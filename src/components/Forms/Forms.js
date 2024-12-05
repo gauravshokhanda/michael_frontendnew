@@ -14,7 +14,7 @@ import {
   DialogTitle,
   Dialog,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
+// import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { DataGrid } from "@mui/x-data-grid";
 import { useSelector } from "react-redux";
@@ -44,7 +44,6 @@ const Forms = () => {
   const fetchContacts = async () => {
     try {
       const response = await axios.get(`${baseURL}/contacts`);
-      console.log("Fetched Data:", response.data);
 
       const contacts = response.data.map((contact) => ({
         id: contact._id,
@@ -70,34 +69,34 @@ const Forms = () => {
     fetchContacts();
   }, []);
 
-  const handleOpen = (contact = null) => {
-    setOpen(true);
-    if (contact) {
-      setEditMode(true);
-      setCurrentContactId(contact.id);
-      setNewContact({
-        name: contact.name,
-        email: contact.email,
-        number: contact.number,
-        inquires: contact.inquires, // Set inquires for editing
-        message: contact.message,
-        findus: contact.find_us,
-        resolved: contact.resolved === "Yes",
-      });
-    } else {
-      setEditMode(false);
-      setCurrentContactId(null);
-      setNewContact({
-        name: "",
-        email: "",
-        number: "",
-        inquires: "", // Reset inquires for adding new
-        message: "",
-        findus: "",
-        resolved: false,
-      });
-    }
-  };
+  // const handleOpen = (contact = null) => {
+  //   setOpen(true);
+  //   if (contact) {
+  //     setEditMode(true);
+  //     setCurrentContactId(contact.id);
+  //     setNewContact({
+  //       name: contact.name,
+  //       email: contact.email,
+  //       number: contact.number,
+  //       inquires: contact.inquires, 
+  //       message: contact.message,
+  //       findus: contact.find_us,
+  //       resolved: contact.resolved === "Yes",
+  //     });
+  //   } else {
+  //     setEditMode(false);
+  //     setCurrentContactId(null);
+  //     setNewContact({
+  //       name: "",
+  //       email: "",
+  //       number: "",
+  //       inquires: "", // Reset inquires for adding new
+  //       message: "",
+  //       findus: "",
+  //       resolved: false,
+  //     });
+  //   }
+  // };
 
   const handleClose = () => {
     setOpen(false);
@@ -205,9 +204,9 @@ const Forms = () => {
       sortable: false,
       renderCell: (params) => (
         <Box sx={{ display: "flex", gap: 1 }}>
-          <IconButton color="primary" onClick={() => handleOpen(params.row)}>
+          {/* <IconButton color="primary" onClick={() => handleOpen(params.row)}>
             <EditIcon />
-          </IconButton>
+          </IconButton> */}
           <IconButton color="error" onClick={() => handleDelete(params.row.id)}>
             <DeleteIcon />
           </IconButton>
