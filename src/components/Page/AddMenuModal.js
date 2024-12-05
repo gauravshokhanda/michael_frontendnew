@@ -90,7 +90,6 @@ const AddMenuModal = ({ open, onClose, onSave }) => {
   };
 
   const handleSave = () => {
-    console.log("handleSave data",menuData)
     if (validate()) {
       onSave(menuData);
       setMenuData({ name: "", link: "", sortOrder: "", meta_data: "", content: "" }); // Reset form

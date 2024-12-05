@@ -43,7 +43,6 @@ const Blogs = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => {
-    console.log("handle open modal");
     setIsModalOpen(true);
   };
 
@@ -287,7 +286,7 @@ const Blogs = () => {
 
       {/* Dialog for Blog Edit */}
       <Modal open={open} onClose={handleClose}>
-        <Box sx={{ p: 3, bgcolor: "white", maxWidth: 600, margin: "0 auto" }}>
+        <Box sx={{ p: 3, bgcolor: "white", maxWidth: 600, maxHeight: 500, margin: "5% auto", overflow: "auto" }}>
           <Typography variant="h6">
             {editMode ? "Edit Blog" : "Add Blog"}
           </Typography>
@@ -336,10 +335,10 @@ const Blogs = () => {
             <img
               src={preview}
               alt="Preview"
-              style={{ width: "100%", height: "auto", marginTop: 20 }}
+              style={{ maxHeight: 200, marginTop: 20, marginLeft: "35%" }}
             />
           )}
-          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, marginTop: 1 }}>
             <Button variant="outlined" onClick={handleClose}>
               Cancel
             </Button>
@@ -362,7 +361,7 @@ const Blogs = () => {
           <Button onClick={handleDeleteCancel} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleDeleteConfirm} color="error">
+          <Button variant="contained" onClick={handleDeleteConfirm} color="error">
             Delete
           </Button>
         </DialogActions>

@@ -31,7 +31,6 @@ const Dashboard = () => {
 
         // Fetch queries (replace with your actual queries API)
         const queriesResponse = await axios.get(`${baseURL}/contacts/`);
-        console.log(queriesResponse.data);
         const totalQueries = queriesResponse.data.length || 0;
 
         setStats({
@@ -39,7 +38,6 @@ const Dashboard = () => {
           totalQueries,
           totalClients,
         });
-        console.log("Updated Stats:", stats);
       } catch (error) {
         console.error("Error fetching stats:", error.message);
       } finally {

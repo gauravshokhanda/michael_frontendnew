@@ -183,7 +183,6 @@ const CMS = () => {
     try {
       await axios.delete(`${baseURL}/contents/${deletePageId}`);
       setRows((prevRows) => prevRows.filter((row) => row.id !== deletePageId));
-      console.log(`Page with ID ${deletePageId} deleted.`);
     } catch (error) {
       console.error("Error deleting page:", error.message);
     } finally {
