@@ -141,6 +141,7 @@ const Blogs = () => {
     
     const errors = {};
     if (!newBlog.title.trim()) errors.title = "Title is required.";
+    
     if (!newBlog.content.trim()) errors.content = "Content is required.";
 
 
