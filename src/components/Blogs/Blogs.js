@@ -138,11 +138,11 @@ const Blogs = () => {
   };
 
   const handleSubmit = async () => {
+    
     const errors = {};
     if (!newBlog.title.trim()) errors.title = "Title is required.";
     if (!newBlog.content.trim()) errors.content = "Content is required.";
-    if (!newBlog.author.trim()) errors.author = "Author is required.";
-    if (!image && !editMode) errors.image = "Image is required.";
+
 
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
