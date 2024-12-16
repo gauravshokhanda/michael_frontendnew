@@ -67,6 +67,7 @@ const Blogs = () => {
         author: blog.author || "Unknown",
         image: blog.image || null,
         published: "Yes",
+        slug: blog.slug || "no-slug"
       }));
       setRows(blogs);
     } catch (err) {
@@ -138,10 +139,10 @@ const Blogs = () => {
   };
 
   const handleSubmit = async () => {
-    
+
     const errors = {};
     if (!newBlog.title.trim()) errors.title = "Title is required.";
-    
+
     if (!newBlog.content.trim()) errors.content = "Content is required.";
 
 
@@ -207,6 +208,7 @@ const Blogs = () => {
 
   const columns = [
     { field: "title", headerName: "Title", flex: 1 },
+    { field: "slug", headerName: "Slug", flex: 1 },
     { field: "content", headerName: "Content", flex: 2 },
     { field: "author", headerName: "Author", flex: 1 },
     {
