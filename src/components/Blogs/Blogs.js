@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css"; // Quill styles
 import {
   Box,
   Button,
@@ -67,7 +69,7 @@ const Blogs = () => {
         author: blog.author || "Unknown",
         image: blog.image || null,
         published: "Yes",
-        slug: blog.slug || "no-slug"
+        slug: blog.slug || "no-slug",
       }));
       setRows(blogs);
     } catch (err) {
@@ -120,8 +122,7 @@ const Blogs = () => {
     setEditMode(false);
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (name, value) => {
     setNewBlog({ ...newBlog, [name]: value });
     if (validationErrors[name]) {
       setValidationErrors((prevErrors) => {
@@ -139,12 +140,9 @@ const Blogs = () => {
   };
 
   const handleSubmit = async () => {
-
     const errors = {};
     if (!newBlog.title.trim()) errors.title = "Title is required.";
-
     if (!newBlog.content.trim()) errors.content = "Content is required.";
-
 
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
@@ -289,7 +287,16 @@ const Blogs = () => {
 
       {/* Dialog for Blog Edit */}
       <Modal open={open} onClose={handleClose}>
-        <Box sx={{ p: 3, bgcolor: "white", maxWidth: 600, maxHeight: 500, margin: "5% auto", overflow: "auto" }}>
+        <Box
+          sx={{
+            p: 3,
+            bgcolor: "white",
+            maxWidth: 600,
+            maxHeight: 500,
+            margin: "5% auto",
+            overflow: "auto",
+          }}
+        >
           <Typography variant="h6">
             {editMode ? "Edit Blog" : "Add Blog"}
           </Typography>
@@ -299,21 +306,25 @@ const Blogs = () => {
             fullWidth
             margin="normal"
             value={newBlog.title}
-            onChange={handleChange}
+            onChange={(e) => handleChange("title", e.target.value)}
             error={!!validationErrors.title}
             helperText={validationErrors.title}
           />
-          <TextField
-            name="content"
-            label="Content"
-            fullWidth
-            margin="normal"
+          <Typography variant="body1" sx={{ mt: 2, mb: 1 }}>
+            Content
+          </Typography>
+          <ReactQuill
             value={newBlog.content}
-            onChange={handleChange}
-            error={!!validationErrors.content}
-            helperText={validationErrors.content}
-            multiline
-            rows={4}
+            onChange={(value) => handleChange("content", value)}
+            modules={{
+              toolbar: [
+                ["bold", "italic", "underline", "strike"],
+                [{ header: [1, 2, 3, false] }],
+                [{ list: "ordered" }, { list: "bullet" }],
+                ["link", "image"],
+                ["code-block"],
+              ],
+            }}
           />
           <TextField
             name="author"
@@ -321,7 +332,7 @@ const Blogs = () => {
             fullWidth
             margin="normal"
             value={newBlog.author}
-            onChange={handleChange}
+            onChange={(e) => handleChange("author", e.target.value)}
             error={!!validationErrors.author}
             helperText={validationErrors.author}
           />
@@ -341,7 +352,14 @@ const Blogs = () => {
               style={{ maxHeight: 200, marginTop: 20, marginLeft: "35%" }}
             />
           )}
-          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, marginTop: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 2,
+              marginTop: 1,
+            }}
+          >
             <Button variant="outlined" onClick={handleClose}>
               Cancel
             </Button>
@@ -364,7 +382,11 @@ const Blogs = () => {
           <Button onClick={handleDeleteCancel} color="primary">
             Cancel
           </Button>
-          <Button variant="contained" onClick={handleDeleteConfirm} color="error">
+          <Button
+            variant="contained"
+            onClick={handleDeleteConfirm}
+            color="error"
+          >
             Delete
           </Button>
         </DialogActions>
