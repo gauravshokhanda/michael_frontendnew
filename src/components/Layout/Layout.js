@@ -34,7 +34,7 @@ const Layout = () => {
     // { text: "Page", path: "/page", icon: <MenuBookIcon /> },
     { text: "Users", path: "/client", icon: <ArticleIcon /> },
     { text: "Inquires", path: "/forms", icon: <FormatAlignJustifyIcon /> },
-    { text: "GeneralSetting", path: "/GeneralSetting", icon: <SettingsIcon /> },
+    { text: "General Setting", path: "/GeneralSetting", icon: <SettingsIcon /> },
   ];
 
   // Toggle sidebar
